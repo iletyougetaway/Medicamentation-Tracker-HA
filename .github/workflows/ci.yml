@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Python tooling
+        run: python -m pip install ruff
+
+      - name: Compile Python sources
+        run: python -m compileall -q custom_components tests
+
+      - name: Run isolated unit smoke tests
+        run: >-
+          python -c
+          "import logging;
+          logging.disable(logging.CRITICAL);
+          import tests.conftest;
+          from tests import test_history, test_manager, test_models;
+          test_models.test_storage_payload_round_trip();
+          test_models.test_invalid_storage_payload_is_rejected();
+          test_history.test_weekly_summary_marks_status_counts_and_future_days();
+          test_history.test_history_range_filter_orders_newest_first();
+          test_manager.test_manager_crud_and_late_intake();
+          test_manager.test_manager_rejects_duplicate_tag();
+          from tests import test_scheduler;
+          test_scheduler.test_next_due_at_uses_today_for_future_reminder();
+          test_scheduler.test_next_due_at_moves_past_reminder_to_tomorrow();
+          test_scheduler.test_reminder_still_enabled_requires_enabled_medication_and_time();
+          test_scheduler.test_notify_service_normalizes_mobile_app_service()"
+
+      - name: Lint Python
+        run: python -m ruff check custom_components tests
+
+      - name: Validate JSON metadata
+        run: >-
+          python -c
+          "import json;
+          from pathlib import Path;
+          files = [
+            'custom_components/medication_manager/icons.json',
+            'custom_components/medication_manager/manifest.json',
+            'custom_components/medication_manager/translations/en.json',
+            'custom_components/medication_manager/translations/ru.json',
+            'frontend/package.json',
+            'frontend/package-lock.json',
+            'frontend/tsconfig.json',
+            'hacs.json',
+          ];
+          [json.loads(Path(file).read_text(encoding='utf-8')) for file in files]"
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type-check frontend
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build

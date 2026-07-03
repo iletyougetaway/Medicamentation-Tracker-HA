@@ -18,6 +18,7 @@ from .models import (
     HistoryEntry,
     HistorySource,
     HistoryStatus,
+    JsonValue,
     Medication,
     MedicationManagerStoreData,
     MedicationReminder,
@@ -94,6 +95,41 @@ class MedicationManager:
         except Exception as err:
             _LOGGER.exception("Unexpected error reading Medication Manager snapshot")
             raise HomeAssistantError("Medication Manager snapshot failed") from err
+
+    async def async_get_settings(self) -> Mapping[str, JsonValue]:
+        """Return the current immutable Medication Manager settings."""
+        _LOGGER.debug("Reading Medication Manager settings")
+        try:
+            async with self._lock:
+                data = self._require_data()
+                return MappingProxyType(dict(data.settings))
+        except HomeAssistantError:
+            _LOGGER.exception("Unable to read Medication Manager settings")
+            raise
+        except Exception as err:
+            _LOGGER.exception("Unexpected error reading Medication Manager settings")
+            raise MedicationManagerError("Settings read failed") from err
+
+    async def async_update_settings(
+        self,
+        updates: Mapping[str, JsonValue],
+    ) -> MedicationManagerStoreData:
+        """Merge and persist Medication Manager settings."""
+        _LOGGER.debug("Updating Medication Manager settings")
+        try:
+            async with self._lock:
+                data = self._require_data()
+                settings = dict(data.settings)
+                settings.update(dict(updates))
+                updated_data = _with_settings(data, settings)
+                await self._async_store_locked(updated_data)
+                return updated_data
+        except HomeAssistantError:
+            _LOGGER.exception("Unable to update Medication Manager settings")
+            raise
+        except Exception as err:
+            _LOGGER.exception("Unexpected error updating Medication Manager settings")
+            raise MedicationManagerError("Settings update failed") from err
 
     async def async_list_medications(self) -> tuple[Medication, ...]:
         """Return all medications sorted by display name."""
@@ -583,6 +619,26 @@ def _with_history(
         _LOGGER.exception("Unable to build updated Medication Manager history data")
         raise MedicationManagerError(
             "Medication Manager history update failed"
+        ) from err
+
+
+def _with_settings(
+    data: MedicationManagerStoreData,
+    settings: Mapping[str, JsonValue],
+) -> MedicationManagerStoreData:
+    """Return a new immutable store payload with replaced settings."""
+    _LOGGER.debug("Building Medication Manager data with updated settings")
+    try:
+        return MedicationManagerStoreData(
+            version=data.version,
+            medications=data.medications,
+            history=data.history,
+            settings=MappingProxyType(dict(settings)),
+        )
+    except Exception as err:
+        _LOGGER.exception("Unable to build updated Medication Manager settings data")
+        raise MedicationManagerError(
+            "Medication Manager settings update failed"
         ) from err
 
 

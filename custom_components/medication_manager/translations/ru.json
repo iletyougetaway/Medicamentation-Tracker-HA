@@ -4,14 +4,45 @@
     "step": {
       "user": {
         "title": "Настройка Менеджера лекарств",
-        "description": "Создайте запись для лекарств, расписаний и истории."
+        "description": "Создайте запись для лекарств, расписаний и истории.",
+        "data": {
+          "notify_service": "Сервис уведомлений mobile_app",
+          "snooze_minutes": "Минуты отсрочки"
+        },
+        "data_description": {
+          "notify_service": "Необязательный сервис mobile_app для автоматических напоминаний, например mobile_app_phone.",
+          "snooze_minutes": "Сколько минут ждать после действия Напомнить позже."
+        }
       }
     },
     "error": {
+      "invalid_notify_service": "Укажите сервис mobile_app, например mobile_app_phone.",
+      "invalid_snooze_minutes": "Минуты отсрочки должны быть от 1 до 240.",
       "unknown": "Произошла непредвиденная ошибка"
     },
     "abort": {
       "already_configured": "Менеджер лекарств уже настроен."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Параметры Менеджера лекарств",
+        "description": "Настройте автоматические уведомления о приёме лекарств.",
+        "data": {
+          "notify_service": "Сервис уведомлений mobile_app",
+          "snooze_minutes": "Минуты отсрочки"
+        },
+        "data_description": {
+          "notify_service": "Необязательный сервис mobile_app для автоматических напоминаний, например mobile_app_phone.",
+          "snooze_minutes": "Сколько минут ждать после действия Напомнить позже."
+        }
+      }
+    },
+    "error": {
+      "invalid_notify_service": "Укажите сервис mobile_app, например mobile_app_phone.",
+      "invalid_snooze_minutes": "Минуты отсрочки должны быть от 1 до 240.",
+      "unknown": "Произошла непредвиденная ошибка"
     }
   },
   "services": {
@@ -142,6 +173,40 @@
         "status": {
           "name": "Статус",
           "description": "Необязательный статус приёма. По умолчанию taken или late."
+        }
+      }
+    },
+    "send_reminder": {
+      "name": "Отправить напоминание",
+      "description": "Отправляет напоминание через мобильное приложение.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Запись интеграции",
+          "description": "Запись Менеджера лекарств для этого лекарства."
+        },
+        "medication_id": {
+          "name": "ID лекарства",
+          "description": "UUID лекарства."
+        },
+        "notify_service": {
+          "name": "Сервис уведомлений",
+          "description": "Сервис mobile_app, например mobile_app_phone."
+        },
+        "scheduled_time": {
+          "name": "Плановое время",
+          "description": "Необязательное плановое время напоминания."
+        },
+        "title": {
+          "name": "Заголовок",
+          "description": "Необязательный заголовок уведомления."
+        },
+        "message": {
+          "name": "Сообщение",
+          "description": "Необязательный текст уведомления."
+        },
+        "snooze_minutes": {
+          "name": "Отложить на минуты",
+          "description": "Сколько минут ждать после нажатия Напомнить позже."
         }
       }
     }

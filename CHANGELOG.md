@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.7.0
+
+- Add the automatic medication reminder scheduler.
+- Add UI options for the mobile app notify service and snooze duration.
+- Reschedule reminder callbacks when medication data changes.
+
+## 0.6.0
+
+- Add the Lovelace dashboard WebSocket API.
+- Add static frontend asset serving for the custom card.
+- Add the `custom:medication-manager` Lit card with live dashboard updates.
+- Add Material Web add and edit medication dialogs with NFC tag and reminders.
+- Add weekly history rendering with medication icons and late/missed states.
+
+## 0.5.0
+
+- Add the NFC tag event engine.
+- Subscribe to Home Assistant tag scan events without user automations.
+- Record medication intake history from bound NFC tags.
+- Clear active medication reminder notifications after NFC intake.
+
+## 0.4.0
+
+- Add an independent mobile app notification engine.
+- Add actionable reminder notifications with Take and Remind Later actions.
+- Store active notification metadata in Home Assistant storage settings.
+- Add the `send_reminder` service action for mobile app reminder delivery.
+
 ## 0.3.0
 
 - Add the independent medication history engine.

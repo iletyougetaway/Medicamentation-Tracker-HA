@@ -129,3 +129,38 @@ take_medication:
           options:
             - "taken"
             - "late"
+
+send_reminder:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: medication_manager
+    medication_id:
+      required: true
+      example: "00000000-0000-4000-8000-000000000000"
+      selector:
+        text:
+    notify_service:
+      required: true
+      example: "mobile_app_pixel_9"
+      selector:
+        text:
+    scheduled_time:
+      example: "2026-07-03T08:00:00+03:00"
+      selector:
+        datetime:
+    title:
+      selector:
+        text:
+    message:
+      selector:
+        text:
+    snooze_minutes:
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 240
+          mode: box

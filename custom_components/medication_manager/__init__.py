@@ -9,10 +9,15 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.typing import ConfigType
 
+from .api import async_setup_api
 from .const import DOMAIN, PLATFORMS
 from .coordinator import MedicationManagerCoordinator
+from .frontend import async_setup_frontend
 from .manager import MedicationManager
+from .nfc import MedicationNfcEngine
+from .notifications import MedicationNotificationEngine
 from .runtime import MedicationManagerConfigEntry, MedicationManagerRuntimeData
+from .scheduler import MedicationReminderScheduler
 from .services import async_setup_services
 from .storage import MedicationManagerStore
 
@@ -28,6 +33,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 "Medication Manager ignores YAML configuration; use the UI instead"
             )
         await async_setup_services(hass)
+        await async_setup_api(hass)
+        await async_setup_frontend(hass)
     except HomeAssistantError:
         _LOGGER.exception("Failed to set up %s domain", DOMAIN)
         raise
@@ -49,13 +56,37 @@ async def async_setup_entry(
         store = MedicationManagerStore(hass)
         manager = MedicationManager(store)
         coordinator = MedicationManagerCoordinator(hass, entry, manager)
+        notifications = MedicationNotificationEngine(
+            hass,
+            manager,
+            coordinator.async_refresh_after_mutation,
+        )
+        nfc = MedicationNfcEngine(
+            hass,
+            manager,
+            notifications,
+            coordinator.async_refresh_after_mutation,
+        )
+        scheduler = MedicationReminderScheduler(
+            hass,
+            entry,
+            manager,
+            notifications,
+            coordinator.async_refresh_after_mutation,
+        )
 
         await manager.async_initialize()
         await coordinator.async_config_entry_first_refresh()
+        await notifications.async_start()
+        await scheduler.async_start()
+        await nfc.async_start()
         entry.async_on_unload(entry.add_update_listener(_async_update_listener))
         entry.runtime_data = MedicationManagerRuntimeData(
             manager=manager,
             coordinator=coordinator,
+            notifications=notifications,
+            scheduler=scheduler,
+            nfc=nfc,
         )
 
         if PLATFORMS:
@@ -86,6 +117,9 @@ async def async_unload_entry(
             )
 
         if unload_ok:
+            await entry.runtime_data.nfc.async_stop()
+            await entry.runtime_data.scheduler.async_stop()
+            await entry.runtime_data.notifications.async_stop()
             await entry.runtime_data.manager.async_shutdown()
             _LOGGER.info("Medication Manager config entry %s unloaded", entry.entry_id)
 

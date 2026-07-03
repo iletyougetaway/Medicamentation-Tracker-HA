@@ -4,14 +4,45 @@
     "step": {
       "user": {
         "title": "Set up Medication Manager",
-        "description": "Create the Medication Manager storage and services entry."
+        "description": "Create the Medication Manager storage and services entry.",
+        "data": {
+          "notify_service": "Mobile app notify service",
+          "snooze_minutes": "Snooze minutes"
+        },
+        "data_description": {
+          "notify_service": "Optional mobile_app notify service used for automatic reminders, for example mobile_app_phone.",
+          "snooze_minutes": "Default minutes for Remind Later notification actions."
+        }
       }
     },
     "error": {
+      "invalid_notify_service": "Use a mobile_app notify service, for example mobile_app_phone.",
+      "invalid_snooze_minutes": "Snooze minutes must be between 1 and 240.",
       "unknown": "Unexpected error"
     },
     "abort": {
       "already_configured": "Medication Manager is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Medication Manager options",
+        "description": "Configure automatic medication reminder notifications.",
+        "data": {
+          "notify_service": "Mobile app notify service",
+          "snooze_minutes": "Snooze minutes"
+        },
+        "data_description": {
+          "notify_service": "Optional mobile_app notify service used for automatic reminders, for example mobile_app_phone.",
+          "snooze_minutes": "Default minutes for Remind Later notification actions."
+        }
+      }
+    },
+    "error": {
+      "invalid_notify_service": "Use a mobile_app notify service, for example mobile_app_phone.",
+      "invalid_snooze_minutes": "Snooze minutes must be between 1 and 240.",
+      "unknown": "Unexpected error"
     }
   },
   "services": {
@@ -142,6 +173,40 @@
         "status": {
           "name": "Status",
           "description": "Optional intake status. Defaults to taken or late."
+        }
+      }
+    },
+    "send_reminder": {
+      "name": "Send reminder",
+      "description": "Send a mobile app medication reminder.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Medication Manager config entry that owns the medication."
+        },
+        "medication_id": {
+          "name": "Medication ID",
+          "description": "Medication UUID."
+        },
+        "notify_service": {
+          "name": "Notify service",
+          "description": "Mobile app notify service, for example mobile_app_phone."
+        },
+        "scheduled_time": {
+          "name": "Scheduled time",
+          "description": "Optional scheduled reminder datetime."
+        },
+        "title": {
+          "name": "Title",
+          "description": "Optional notification title."
+        },
+        "message": {
+          "name": "Message",
+          "description": "Optional notification message."
+        },
+        "snooze_minutes": {
+          "name": "Snooze minutes",
+          "description": "Minutes to wait after Remind Later is pressed."
         }
       }
     }

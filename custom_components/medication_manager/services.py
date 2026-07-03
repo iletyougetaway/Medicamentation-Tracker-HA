@@ -25,20 +25,25 @@ from .const import (
     ATTR_ENABLED,
     ATTR_ICON,
     ATTR_MEDICATION_ID,
+    ATTR_MESSAGE,
     ATTR_NAME,
+    ATTR_NOTIFY_SERVICE,
     ATTR_REMINDERS,
     ATTR_SCHEDULED_TIME,
+    ATTR_SNOOZE_MINUTES,
     ATTR_SOURCE,
     ATTR_STATUS,
     ATTR_TAG_ID,
     ATTR_TAKEN_TIME,
     ATTR_TIME,
+    ATTR_TITLE,
     DATA_SERVICES_REGISTERED,
     DEFAULT_MEDICATION_ICON,
     DOMAIN,
     SERVICE_ADD_MEDICATION,
     SERVICE_BIND_TAG,
     SERVICE_DELETE_MEDICATION,
+    SERVICE_SEND_REMINDER,
     SERVICE_TAKE_MEDICATION,
     SERVICE_UPDATE_MEDICATION,
 )
@@ -94,6 +99,13 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             SERVICE_TAKE_MEDICATION,
             _async_take_medication,
             schema=TAKE_MEDICATION_SCHEMA,
+            supports_response=SupportsResponse.OPTIONAL,
+        )
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SEND_REMINDER,
+            _async_send_reminder,
+            schema=SEND_REMINDER_SCHEMA,
             supports_response=SupportsResponse.OPTIONAL,
         )
         domain_data[DATA_SERVICES_REGISTERED] = True
@@ -213,6 +225,9 @@ async def _async_take_medication(call: ServiceCall) -> ServiceResponse:
             source=cast(HistorySource | str, call.data[ATTR_SOURCE]),
             status=cast(HistoryStatus | str | None, call.data.get(ATTR_STATUS)),
         )
+        await runtime_data.notifications.async_clear_for_medication(
+            entry.medication_id
+        )
         medication = await runtime_data.manager.async_get_medication(medication_id)
         await runtime_data.coordinator.async_refresh_after_mutation()
         return _history_response(entry, medication)
@@ -225,6 +240,38 @@ async def _async_take_medication(call: ServiceCall) -> ServiceResponse:
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager take_medication failure")
         raise HomeAssistantError("Medication Manager take_medication failed") from err
+
+
+async def _async_send_reminder(call: ServiceCall) -> ServiceResponse:
+    """Handle the send reminder service action."""
+    _LOGGER.debug("Handling Medication Manager send_reminder service action")
+    try:
+        runtime_data = _runtime_from_call(call)
+        medication = await runtime_data.manager.async_get_medication(
+            cast(str, call.data[ATTR_MEDICATION_ID])
+        )
+        notification = await runtime_data.notifications.async_send_reminder(
+            medication,
+            notify_service=cast(str, call.data[ATTR_NOTIFY_SERVICE]),
+            scheduled_time=cast(datetime | None, call.data.get(ATTR_SCHEDULED_TIME)),
+            title=cast(str | None, call.data.get(ATTR_TITLE)),
+            message=cast(str | None, call.data.get(ATTR_MESSAGE)),
+            snooze_minutes=cast(int, call.data[ATTR_SNOOZE_MINUTES]),
+        )
+        await runtime_data.coordinator.async_refresh_after_mutation()
+        return {
+            "notification": notification.as_storage(),
+            "medication": medication.as_storage(),
+        }
+    except MedicationManagerError as err:
+        _LOGGER.warning("Medication Manager send_reminder rejected: %s", err)
+        raise ServiceValidationError(str(err)) from err
+    except HomeAssistantError:
+        _LOGGER.exception("Medication Manager send_reminder failed")
+        raise
+    except Exception as err:
+        _LOGGER.exception("Unexpected Medication Manager send_reminder failure")
+        raise HomeAssistantError("Medication Manager send_reminder failed") from err
 
 
 def _runtime_from_call(call: ServiceCall) -> MedicationManagerRuntimeData:
@@ -429,6 +476,38 @@ def _validate_take_status(value: object) -> str:
         raise vol.Invalid("expected intake status") from err
 
 
+def _validate_notify_service(value: object) -> str:
+    """Validate a mobile app notify service name."""
+    _LOGGER.debug("Validating Medication Manager notify service value")
+    try:
+        if not isinstance(value, str):
+            raise vol.Invalid("expected notify service")
+        normalized = value.strip().removeprefix("notify.")
+        if not normalized.startswith("mobile_app_"):
+            raise vol.Invalid("expected mobile_app notify service")
+        return normalized
+    except vol.Invalid:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager notify service value is invalid")
+        raise vol.Invalid("expected mobile_app notify service") from err
+
+
+def _validate_snooze_minutes(value: object) -> int:
+    """Validate notification snooze minutes."""
+    _LOGGER.debug("Validating Medication Manager snooze minutes")
+    try:
+        minutes = vol.Coerce(int)(value)
+        if minutes < 1 or minutes > 240:
+            raise vol.Invalid("expected value from 1 to 240")
+        return minutes
+    except vol.Invalid:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager snooze minutes value is invalid")
+        raise vol.Invalid("expected value from 1 to 240") from err
+
+
 _REMINDER_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_TIME): _validate_service_time,
@@ -488,5 +567,17 @@ TAKE_MEDICATION_SCHEMA = vol.Schema(
             _validate_history_source
         ),
         vol.Optional(ATTR_STATUS): _validate_take_status,
+    }
+)
+
+SEND_REMINDER_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): cv.string,
+        vol.Required(ATTR_MEDICATION_ID): _validate_uuid_string,
+        vol.Required(ATTR_NOTIFY_SERVICE): _validate_notify_service,
+        vol.Optional(ATTR_SCHEDULED_TIME): _validate_datetime,
+        vol.Optional(ATTR_TITLE): cv.string,
+        vol.Optional(ATTR_MESSAGE): cv.string,
+        vol.Optional(ATTR_SNOOZE_MINUTES, default=10): _validate_snooze_minutes,
     }
 )

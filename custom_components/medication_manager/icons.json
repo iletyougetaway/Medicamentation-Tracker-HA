@@ -14,6 +14,9 @@
     },
     "take_medication": {
       "service": "mdi:pill"
+    },
+    "send_reminder": {
+      "service": "mdi:bell-ring-outline"
     }
   }
 }

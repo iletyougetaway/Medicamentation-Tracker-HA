@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DOMAIN
+from .const import DOMAIN, EVENT_DATA_UPDATED
 from .manager import MedicationManager
 from .models import MedicationManagerStoreData
 
@@ -59,6 +59,7 @@ class MedicationManagerCoordinator(DataUpdateCoordinator[MedicationManagerStoreD
         _LOGGER.debug("Publishing Medication Manager state after mutation")
         try:
             self.async_set_updated_data(await self._manager.async_get_snapshot())
+            self.hass.bus.async_fire(EVENT_DATA_UPDATED, {})
         except HomeAssistantError:
             _LOGGER.exception("Unable to publish Medication Manager state")
             raise
@@ -67,4 +68,3 @@ class MedicationManagerCoordinator(DataUpdateCoordinator[MedicationManagerStoreD
             raise HomeAssistantError(
                 "Medication Manager coordinator publish failed"
             ) from err
-

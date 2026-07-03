@@ -1,0 +1,96 @@
+add_medication:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: medication_manager
+    name:
+      required: true
+      example: "Vitamin D"
+      selector:
+        text:
+    icon:
+      default: "mdi:pill"
+      example: "mdi:pill"
+      selector:
+        icon:
+    tag_id:
+      example: "04a1b2c3d4e5"
+      selector:
+        text:
+    enabled:
+      default: true
+      selector:
+        boolean:
+    reminders:
+      default: []
+      selector:
+        object:
+
+update_medication:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: medication_manager
+    medication_id:
+      required: true
+      example: "00000000-0000-4000-8000-000000000000"
+      selector:
+        text:
+    name:
+      example: "Vitamin D"
+      selector:
+        text:
+    icon:
+      example: "mdi:pill"
+      selector:
+        icon:
+    tag_id:
+      example: "04a1b2c3d4e5"
+      selector:
+        text:
+    clear_tag:
+      default: false
+      selector:
+        boolean:
+    enabled:
+      selector:
+        boolean:
+    reminders:
+      selector:
+        object:
+
+delete_medication:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: medication_manager
+    medication_id:
+      required: true
+      example: "00000000-0000-4000-8000-000000000000"
+      selector:
+        text:
+
+bind_tag:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: medication_manager
+    medication_id:
+      required: true
+      example: "00000000-0000-4000-8000-000000000000"
+      selector:
+        text:
+    tag_id:
+      required: true
+      example: "04a1b2c3d4e5"
+      selector:
+        text:
+

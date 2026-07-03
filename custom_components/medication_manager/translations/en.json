@@ -13,6 +13,107 @@
     "abort": {
       "already_configured": "Medication Manager is already configured."
     }
+  },
+  "services": {
+    "add_medication": {
+      "name": "Add medication",
+      "description": "Add a medication to Medication Manager.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Medication Manager config entry that owns the medication."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Medication display name."
+        },
+        "icon": {
+          "name": "Icon",
+          "description": "Material Design icon for this medication."
+        },
+        "tag_id": {
+          "name": "NFC tag",
+          "description": "Optional NFC tag id to bind to this medication."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Whether this medication is active."
+        },
+        "reminders": {
+          "name": "Reminders",
+          "description": "List of reminder objects with time and enabled fields."
+        }
+      }
+    },
+    "update_medication": {
+      "name": "Update medication",
+      "description": "Update an existing medication.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Medication Manager config entry that owns the medication."
+        },
+        "medication_id": {
+          "name": "Medication ID",
+          "description": "Medication UUID."
+        },
+        "name": {
+          "name": "Name",
+          "description": "New medication display name."
+        },
+        "icon": {
+          "name": "Icon",
+          "description": "New Material Design icon."
+        },
+        "tag_id": {
+          "name": "NFC tag",
+          "description": "New NFC tag id."
+        },
+        "clear_tag": {
+          "name": "Clear NFC tag",
+          "description": "Remove the currently bound NFC tag."
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "Whether this medication is active."
+        },
+        "reminders": {
+          "name": "Reminders",
+          "description": "Replacement list of reminder objects with time and enabled fields."
+        }
+      }
+    },
+    "delete_medication": {
+      "name": "Delete medication",
+      "description": "Delete an existing medication.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Medication Manager config entry that owns the medication."
+        },
+        "medication_id": {
+          "name": "Medication ID",
+          "description": "Medication UUID."
+        }
+      }
+    },
+    "bind_tag": {
+      "name": "Bind NFC tag",
+      "description": "Bind an NFC tag id to an existing medication.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Medication Manager config entry that owns the medication."
+        },
+        "medication_id": {
+          "name": "Medication ID",
+          "description": "Medication UUID."
+        },
+        "tag_id": {
+          "name": "NFC tag",
+          "description": "NFC tag id to bind."
+        }
+      }
+    }
   }
 }
-

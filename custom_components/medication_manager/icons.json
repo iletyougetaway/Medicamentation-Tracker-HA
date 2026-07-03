@@ -1,0 +1,17 @@
+{
+  "services": {
+    "add_medication": {
+      "service": "mdi:pill-plus"
+    },
+    "update_medication": {
+      "service": "mdi:pill"
+    },
+    "delete_medication": {
+      "service": "mdi:trash-can-outline"
+    },
+    "bind_tag": {
+      "service": "mdi:nfc-variant"
+    }
+  }
+}
+

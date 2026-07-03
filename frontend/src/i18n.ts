@@ -72,6 +72,7 @@ const EN = {
 
 export type TranslationKey = keyof typeof EN;
 
-export function localize(language: string, key: TranslationKey): string {
-  return language.toLowerCase().startsWith("ru") ? RU[key] : EN[key];
+export function localize(language: string | undefined, key: TranslationKey): string {
+  const normalized = (language ?? "ru").toLowerCase().replace("_", "-");
+  return normalized.startsWith("en") ? EN[key] : RU[key];
 }

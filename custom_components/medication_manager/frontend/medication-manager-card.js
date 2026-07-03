@@ -1,7 +1,7 @@
-const N = globalThis, j = N.ShadowRoot && (N.ShadyCSS === void 0 || N.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, V = /* @__PURE__ */ Symbol(), Z = /* @__PURE__ */ new WeakMap();
+const N = globalThis, j = N.ShadowRoot && (N.ShadyCSS === void 0 || N.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, q = /* @__PURE__ */ Symbol(), Z = /* @__PURE__ */ new WeakMap();
 let se = class {
   constructor(e, i, r) {
-    if (this._$cssResult$ = !0, r !== V) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, r !== q) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = e, this.t = i;
   }
   get styleSheet() {
@@ -17,13 +17,13 @@ let se = class {
     return this.cssText;
   }
 };
-const ce = (t) => new se(typeof t == "string" ? t : t + "", void 0, V), he = (t, ...e) => {
+const ce = (t) => new se(typeof t == "string" ? t : t + "", void 0, q), he = (t, ...e) => {
   const i = t.length === 1 ? t[0] : e.reduce((r, s, n) => r + ((o) => {
     if (o._$cssResult$ === !0) return o.cssText;
     if (typeof o == "number") return o;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + o + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(s) + t[n + 1], t[0]);
-  return new se(i, t, V);
+  return new se(i, t, q);
 }, pe = (t, e) => {
   if (j) t.adoptedStyleSheets = e.map((i) => i instanceof CSSStyleSheet ? i : i.styleSheet);
   else for (const i of e) {
@@ -35,10 +35,10 @@ const ce = (t) => new se(typeof t == "string" ? t : t + "", void 0, V), he = (t,
   for (const r of e.cssRules) i += r.cssText;
   return ce(i);
 })(t) : t;
-const { is: ue, defineProperty: me, getOwnPropertyDescriptor: _e, getOwnPropertyNames: ge, getOwnPropertySymbols: fe, getPrototypeOf: $e } = Object, I = globalThis, K = I.trustedTypes, be = K ? K.emptyScript : "", ve = I.reactiveElementPolyfillSupport, S = (t, e) => t, O = { toAttribute(t, e) {
+const { is: ue, defineProperty: me, getOwnPropertyDescriptor: _e, getOwnPropertyNames: ge, getOwnPropertySymbols: be, getPrototypeOf: fe } = Object, H = globalThis, K = H.trustedTypes, $e = K ? K.emptyScript : "", ve = H.reactiveElementPolyfillSupport, S = (t, e) => t, O = { toAttribute(t, e) {
   switch (e) {
     case Boolean:
-      t = t ? be : null;
+      t = t ? $e : null;
       break;
     case Object:
     case Array:
@@ -64,8 +64,8 @@ const { is: ue, defineProperty: me, getOwnPropertyDescriptor: _e, getOwnProperty
   }
   return i;
 } }, B = (t, e) => !ue(t, e), G = { attribute: !0, type: String, converter: O, reflect: !1, useDefault: !1, hasChanged: B };
-Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), I.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
-let A = class extends HTMLElement {
+Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), H.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
+let w = class extends HTMLElement {
   static addInitializer(e) {
     this._$Ei(), (this.l ??= []).push(e);
   }
@@ -94,13 +94,13 @@ let A = class extends HTMLElement {
   }
   static _$Ei() {
     if (this.hasOwnProperty(S("elementProperties"))) return;
-    const e = $e(this);
+    const e = fe(this);
     e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
   }
   static finalize() {
     if (this.hasOwnProperty(S("finalized"))) return;
     if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(S("properties"))) {
-      const i = this.properties, r = [...ge(i), ...fe(i)];
+      const i = this.properties, r = [...ge(i), ...be(i)];
       for (const s of r) this.createProperty(s, i[s]);
     }
     const e = this[Symbol.metadata];
@@ -246,23 +246,23 @@ let A = class extends HTMLElement {
   firstUpdated(e) {
   }
 };
-A.elementStyles = [], A.shadowRootOptions = { mode: "open" }, A[S("elementProperties")] = /* @__PURE__ */ new Map(), A[S("finalized")] = /* @__PURE__ */ new Map(), ve?.({ ReactiveElement: A }), (I.reactiveElementVersions ??= []).push("2.1.2");
-const q = globalThis, Q = (t) => t, H = q.trustedTypes, X = H ? H.createPolicy("lit-html", { createHTML: (t) => t }) : void 0, ne = "$lit$", $ = `lit$${Math.random().toFixed(9).slice(2)}$`, oe = "?" + $, ye = `<${oe}>`, y = document, R = () => y.createComment(""), D = (t) => t === null || typeof t != "object" && typeof t != "function", W = Array.isArray, xe = (t) => W(t) || typeof t?.[Symbol.iterator] == "function", L = `[ 	
-\f\r]`, k = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Y = /-->/g, ee = />/g, b = RegExp(`>|${L}(?:([^\\s"'>=/]+)(${L}*=${L}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), te = /'/g, ie = /"/g, ae = /^(?:script|style|textarea|title)$/i, Ae = (t) => (e, ...i) => ({ _$litType$: t, strings: e, values: i }), m = Ae(1), w = /* @__PURE__ */ Symbol.for("lit-noChange"), h = /* @__PURE__ */ Symbol.for("lit-nothing"), re = /* @__PURE__ */ new WeakMap(), v = y.createTreeWalker(y, 129);
+w.elementStyles = [], w.shadowRootOptions = { mode: "open" }, w[S("elementProperties")] = /* @__PURE__ */ new Map(), w[S("finalized")] = /* @__PURE__ */ new Map(), ve?.({ ReactiveElement: w }), (H.reactiveElementVersions ??= []).push("2.1.2");
+const V = globalThis, Q = (t) => t, I = V.trustedTypes, X = I ? I.createPolicy("lit-html", { createHTML: (t) => t }) : void 0, ne = "$lit$", f = `lit$${Math.random().toFixed(9).slice(2)}$`, oe = "?" + f, ye = `<${oe}>`, y = document, R = () => y.createComment(""), D = (t) => t === null || typeof t != "object" && typeof t != "function", W = Array.isArray, xe = (t) => W(t) || typeof t?.[Symbol.iterator] == "function", L = `[ 	
+\f\r]`, k = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Y = /-->/g, ee = />/g, $ = RegExp(`>|${L}(?:([^\\s"'>=/]+)(${L}*=${L}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), te = /'/g, ie = /"/g, ae = /^(?:script|style|textarea|title)$/i, we = (t) => (e, ...i) => ({ _$litType$: t, strings: e, values: i }), m = we(1), A = /* @__PURE__ */ Symbol.for("lit-noChange"), h = /* @__PURE__ */ Symbol.for("lit-nothing"), re = /* @__PURE__ */ new WeakMap(), v = y.createTreeWalker(y, 129);
 function de(t, e) {
   if (!W(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return X !== void 0 ? X.createHTML(e) : e;
 }
-const we = (t, e) => {
+const Ae = (t, e) => {
   const i = t.length - 1, r = [];
   let s, n = e === 2 ? "<svg>" : e === 3 ? "<math>" : "", o = k;
   for (let l = 0; l < i; l++) {
     const d = t[l];
     let p, u, c = -1, _ = 0;
-    for (; _ < d.length && (o.lastIndex = _, u = o.exec(d), u !== null); ) _ = o.lastIndex, o === k ? u[1] === "!--" ? o = Y : u[1] !== void 0 ? o = ee : u[2] !== void 0 ? (ae.test(u[2]) && (s = RegExp("</" + u[2], "g")), o = b) : u[3] !== void 0 && (o = b) : o === b ? u[0] === ">" ? (o = s ?? k, c = -1) : u[1] === void 0 ? c = -2 : (c = o.lastIndex - u[2].length, p = u[1], o = u[3] === void 0 ? b : u[3] === '"' ? ie : te) : o === ie || o === te ? o = b : o === Y || o === ee ? o = k : (o = b, s = void 0);
-    const f = o === b && t[l + 1].startsWith("/>") ? " " : "";
-    n += o === k ? d + ye : c >= 0 ? (r.push(p), d.slice(0, c) + ne + d.slice(c) + $ + f) : d + $ + (c === -2 ? l : f);
+    for (; _ < d.length && (o.lastIndex = _, u = o.exec(d), u !== null); ) _ = o.lastIndex, o === k ? u[1] === "!--" ? o = Y : u[1] !== void 0 ? o = ee : u[2] !== void 0 ? (ae.test(u[2]) && (s = RegExp("</" + u[2], "g")), o = $) : u[3] !== void 0 && (o = $) : o === $ ? u[0] === ">" ? (o = s ?? k, c = -1) : u[1] === void 0 ? c = -2 : (c = o.lastIndex - u[2].length, p = u[1], o = u[3] === void 0 ? $ : u[3] === '"' ? ie : te) : o === ie || o === te ? o = $ : o === Y || o === ee ? o = k : (o = $, s = void 0);
+    const b = o === $ && t[l + 1].startsWith("/>") ? " " : "";
+    n += o === k ? d + ye : c >= 0 ? (r.push(p), d.slice(0, c) + ne + d.slice(c) + f + b) : d + f + (c === -2 ? l : b);
   }
   return [de(t, n + (t[i] || "<?>") + (e === 2 ? "</svg>" : e === 3 ? "</math>" : "")), r];
 };
@@ -271,7 +271,7 @@ class M {
     let s;
     this.parts = [];
     let n = 0, o = 0;
-    const l = e.length - 1, d = this.parts, [p, u] = we(e, i);
+    const l = e.length - 1, d = this.parts, [p, u] = Ae(e, i);
     if (this.el = M.createElement(p, r), v.currentNode = this.el.content, i === 2 || i === 3) {
       const c = this.el.content.firstChild;
       c.replaceWith(...c.childNodes);
@@ -279,21 +279,21 @@ class M {
     for (; (s = v.nextNode()) !== null && d.length < l; ) {
       if (s.nodeType === 1) {
         if (s.hasAttributes()) for (const c of s.getAttributeNames()) if (c.endsWith(ne)) {
-          const _ = u[o++], f = s.getAttribute(c).split($), U = /([.?@])?(.*)/.exec(_);
-          d.push({ type: 1, index: n, name: U[2], strings: f, ctor: U[1] === "." ? ke : U[1] === "?" ? Se : U[1] === "@" ? Ce : z }), s.removeAttribute(c);
-        } else c.startsWith($) && (d.push({ type: 6, index: n }), s.removeAttribute(c));
+          const _ = u[o++], b = s.getAttribute(c).split(f), U = /([.?@])?(.*)/.exec(_);
+          d.push({ type: 1, index: n, name: U[2], strings: b, ctor: U[1] === "." ? ke : U[1] === "?" ? Se : U[1] === "@" ? Ce : z }), s.removeAttribute(c);
+        } else c.startsWith(f) && (d.push({ type: 6, index: n }), s.removeAttribute(c));
         if (ae.test(s.tagName)) {
-          const c = s.textContent.split($), _ = c.length - 1;
+          const c = s.textContent.split(f), _ = c.length - 1;
           if (_ > 0) {
-            s.textContent = H ? H.emptyScript : "";
-            for (let f = 0; f < _; f++) s.append(c[f], R()), v.nextNode(), d.push({ type: 2, index: ++n });
+            s.textContent = I ? I.emptyScript : "";
+            for (let b = 0; b < _; b++) s.append(c[b], R()), v.nextNode(), d.push({ type: 2, index: ++n });
             s.append(c[_], R());
           }
         }
       } else if (s.nodeType === 8) if (s.data === oe) d.push({ type: 2, index: n });
       else {
         let c = -1;
-        for (; (c = s.data.indexOf($, c + 1)) !== -1; ) d.push({ type: 7, index: n }), c += $.length - 1;
+        for (; (c = s.data.indexOf(f, c + 1)) !== -1; ) d.push({ type: 7, index: n }), c += f.length - 1;
       }
       n++;
     }
@@ -304,7 +304,7 @@ class M {
   }
 }
 function E(t, e, i = t, r) {
-  if (e === w) return e;
+  if (e === A) return e;
   let s = r !== void 0 ? i._$Co?.[r] : i._$Cl;
   const n = D(e) ? void 0 : e._$litDirective$;
   return s?.constructor !== n && (s?._$AO?.(!1), n === void 0 ? s = void 0 : (s = new n(t), s._$AT(t, i, r)), r !== void 0 ? (i._$Co ??= [])[r] = s : i._$Cl = s), s !== void 0 && (e = E(t, s._$AS(t, e.values), s, r)), e;
@@ -356,7 +356,7 @@ class P {
     return this._$AB;
   }
   _$AI(e, i = this) {
-    e = E(this, e, i), D(e) ? e === h || e == null || e === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : e !== this._$AH && e !== w && this._(e) : e._$litType$ !== void 0 ? this.$(e) : e.nodeType !== void 0 ? this.T(e) : xe(e) ? this.k(e) : this._(e);
+    e = E(this, e, i), D(e) ? e === h || e == null || e === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : e !== this._$AH && e !== A && this._(e) : e._$litType$ !== void 0 ? this.$(e) : e.nodeType !== void 0 ? this.T(e) : xe(e) ? this.k(e) : this._(e);
   }
   O(e) {
     return this._$AA.parentNode.insertBefore(e, this._$AB);
@@ -409,11 +409,11 @@ class z {
   _$AI(e, i = this, r, s) {
     const n = this.strings;
     let o = !1;
-    if (n === void 0) e = E(this, e, i, 0), o = !D(e) || e !== this._$AH && e !== w, o && (this._$AH = e);
+    if (n === void 0) e = E(this, e, i, 0), o = !D(e) || e !== this._$AH && e !== A, o && (this._$AH = e);
     else {
       const l = e;
       let d, p;
-      for (e = n[0], d = 0; d < n.length - 1; d++) p = E(this, l[r + d], i, d), p === w && (p = this._$AH[d]), o ||= !D(p) || p !== this._$AH[d], p === h ? e = h : e !== h && (e += (p ?? "") + n[d + 1]), this._$AH[d] = p;
+      for (e = n[0], d = 0; d < n.length - 1; d++) p = E(this, l[r + d], i, d), p === A && (p = this._$AH[d]), o ||= !D(p) || p !== this._$AH[d], p === h ? e = h : e !== h && (e += (p ?? "") + n[d + 1]), this._$AH[d] = p;
     }
     o && !s && this.j(e);
   }
@@ -442,7 +442,7 @@ class Ce extends z {
     super(e, i, r, s, n), this.type = 5;
   }
   _$AI(e, i = this) {
-    if ((e = E(this, e, i, 0) ?? h) === w) return;
+    if ((e = E(this, e, i, 0) ?? h) === A) return;
     const r = this._$AH, s = e === h && r !== h || e.capture !== r.capture || e.once !== r.once || e.passive !== r.passive, n = e !== h && (r === h || s);
     s && this.element.removeEventListener(this.name, this, r), n && this.element.addEventListener(this.name, this, e), this._$AH = e;
   }
@@ -461,8 +461,8 @@ class Re {
     E(this, e);
   }
 }
-const De = q.litHtmlPolyfillSupport;
-De?.(M, P), (q.litHtmlVersions ??= []).push("3.3.3");
+const De = V.litHtmlPolyfillSupport;
+De?.(M, P), (V.litHtmlVersions ??= []).push("3.3.3");
 const Me = (t, e, i) => {
   const r = i?.renderBefore ?? e;
   let s = r._$litPart$;
@@ -473,7 +473,7 @@ const Me = (t, e, i) => {
   return s._$AI(t), s;
 };
 const F = globalThis;
-class C extends A {
+class C extends w {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -492,7 +492,7 @@ class C extends A {
     super.disconnectedCallback(), this._$Do?.setConnected(!1);
   }
   render() {
-    return w;
+    return A;
   }
 }
 C._$litElement$ = !0, C.finalized = !0, F.litElementHydrateSupport?.({ LitElement: C });
@@ -568,7 +568,7 @@ const Oe = {
   today: "Сегодня",
   title: "Менеджер лекарств",
   unnamed: "Новое лекарство"
-}, He = {
+}, Ie = {
   add: "Add",
   addMedication: "Add medication",
   addReminder: "Add reminder",
@@ -604,12 +604,12 @@ const Oe = {
   unnamed: "New medication"
 };
 function a(t, e) {
-  return t.toLowerCase().startsWith("ru") ? Oe[e] : He[e];
+  return (t ?? "ru").toLowerCase().replace("_", "-").startsWith("en") ? Ie[e] : Oe[e];
 }
-var Ie = Object.defineProperty, ze = Object.getOwnPropertyDescriptor, x = (t, e, i, r) => {
+var He = Object.defineProperty, ze = Object.getOwnPropertyDescriptor, x = (t, e, i, r) => {
   for (var s = r > 1 ? void 0 : r ? ze(e, i) : e, n = t.length - 1, o; n >= 0; n--)
     (o = t[n]) && (s = (r ? o(e, i, s) : o(s)) || s);
-  return r && s && Ie(e, i, s), s;
+  return r && s && He(e, i, s), s;
 };
 let g = class extends C {
   constructor() {
@@ -634,27 +634,28 @@ let g = class extends C {
     t.has("hass") && (this._subscribe(), this._loadDashboard());
   }
   render() {
-    const e = this.hass?.language ?? "en", i = this._config.title ?? a(e, "title");
+    this.hass;
+    const t = this._language, e = this._config.title ?? a(t, "title");
     return this._error ? m`<ha-card><div class="error">${this._error}</div></ha-card>` : m`
       <ha-card>
         <header>
-          <h2>${i}</h2>
+          <h2>${e}</h2>
           <button
             class="button filled"
             type="button"
             @click=${() => this._openAddDialog()}
           >
             <ha-icon icon="mdi:plus"></ha-icon>
-            ${a(e, "add")}
+            ${a(t, "add")}
           </button>
         </header>
         <section>
           ${this._dashboard?.medications.length ? this._dashboard.medications.map(
-      (r) => this._renderMedication(r, e)
-    ) : m`<div class="empty">${a(e, "empty")}</div>`}
+      (i) => this._renderMedication(i, t)
+    ) : m`<div class="empty">${a(t, "empty")}</div>`}
         </section>
       </ha-card>
-      ${this._renderMedicationDialog(e)}
+      ${this._renderMedicationDialog(t)}
     `;
   }
   _renderMedication(t, e) {
@@ -726,89 +727,88 @@ let g = class extends C {
         header-title=${i}
         @closed=${() => this._closeDialog()}
       >
-        <form class="dialog-form">
-          ${e.error ? m`<div class="dialog-error">${e.error}</div>` : h}
-          <ha-textfield
-            outlined
-            .label=${a(t, "name")}
-            .value=${e.name}
-            ?disabled=${e.saving}
-            required
-            @input=${(r) => this._updateDialog({ name: this._stringValue(r) })}
-          ></ha-textfield>
-          <ha-textfield
-            outlined
-            .label=${a(t, "icon")}
-            .value=${e.icon}
-            ?disabled=${e.saving}
-            @input=${(r) => this._updateDialog({ icon: this._stringValue(r) })}
-          ></ha-textfield>
-          <ha-textfield
-            outlined
-            .label=${a(t, "nfcTag")}
-            .value=${e.tagId}
-            ?disabled=${e.saving}
-            @input=${(r) => this._updateDialog({ tagId: this._stringValue(r) })}
-          ></ha-textfield>
-          <label class="toggle-row">
-            <ha-checkbox
-              .checked=${e.medicationEnabled}
-              ?disabled=${e.saving}
-              @change=${(r) => this._updateDialog({
+        <div class="dialog-content">
+          <form class="dialog-form">
+            ${e.error ? m`<div class="dialog-error">${e.error}</div>` : h}
+            ${this._renderTextField({
+      disabled: e.saving,
+      label: a(t, "name"),
+      required: !0,
+      value: e.name,
+      onInput: (r) => this._updateDialog({ name: r })
+    })}
+            ${this._renderTextField({
+      disabled: e.saving,
+      label: a(t, "icon"),
+      value: e.icon,
+      onInput: (r) => this._updateDialog({ icon: r })
+    })}
+            ${this._renderTextField({
+      disabled: e.saving,
+      label: a(t, "nfcTag"),
+      value: e.tagId,
+      onInput: (r) => this._updateDialog({ tagId: r })
+    })}
+            <label class="toggle-row">
+              <ha-checkbox
+                .checked=${e.medicationEnabled}
+                ?disabled=${e.saving}
+                @change=${(r) => this._updateDialog({
       medicationEnabled: this._checkedValue(r)
     })}
-            ></ha-checkbox>
-            <span>${a(t, "enableMedication")}</span>
-          </label>
-          <label class="toggle-row">
-            <ha-checkbox
-              .checked=${e.remindersEnabled}
-              ?disabled=${e.saving}
-              @change=${(r) => this._updateDialog({
+              ></ha-checkbox>
+              <span>${a(t, "enableMedication")}</span>
+            </label>
+            <label class="toggle-row">
+              <ha-checkbox
+                .checked=${e.remindersEnabled}
+                ?disabled=${e.saving}
+                @change=${(r) => this._updateDialog({
       remindersEnabled: this._checkedValue(r)
     })}
-            ></ha-checkbox>
-            <span>${a(t, "enableReminders")}</span>
-          </label>
-          <fieldset>
-            <legend>${a(t, "reminders")}</legend>
-            ${e.reminders.length ? e.reminders.map(
+              ></ha-checkbox>
+              <span>${a(t, "enableReminders")}</span>
+            </label>
+            <fieldset>
+              <legend>${a(t, "reminders")}</legend>
+              ${e.reminders.length ? e.reminders.map(
       (r, s) => this._renderReminderRow(r, s, t)
     ) : m`
-                  <div class="reminder-empty">
-                    ${a(t, "noReminders")}
-                  </div>
-                `}
+                    <div class="reminder-empty">
+                      ${a(t, "noReminders")}
+                    </div>
+                  `}
+              <button
+                class="button outlined"
+                type="button"
+                ?disabled=${e.saving}
+                @click=${() => this._addReminder()}
+              >
+                <ha-icon icon="mdi:plus"></ha-icon>
+                ${a(t, "addReminder")}
+              </button>
+            </fieldset>
+          </form>
+          <div class="dialog-actions">
+            ${this._renderDeleteActions(e, t)}
+            <span class="action-spacer"></span>
             <button
-              class="button outlined"
+              class="button text"
               type="button"
               ?disabled=${e.saving}
-              @click=${() => this._addReminder()}
+              @click=${() => this._closeDialog()}
             >
-              <ha-icon icon="mdi:plus"></ha-icon>
-              ${a(t, "addReminder")}
+              ${a(t, "cancel")}
             </button>
-          </fieldset>
-        </form>
-        <div slot="footer" class="dialog-actions">
-          ${this._renderDeleteActions(e, t)}
-          <span class="action-spacer"></span>
-          <button
-            class="button text"
-            type="button"
-            ?disabled=${e.saving}
-            @click=${() => this._closeDialog()}
-          >
-            ${a(t, "cancel")}
-          </button>
-          <button
-            class="button filled"
-            type="button"
-            ?disabled=${e.saving}
-            @click=${() => this._saveDialog()}
-          >
-            ${a(t, "save")}
-          </button>
+            <button
+              class="button filled"
+              type="button"
+              ?disabled=${e.saving}
+              @click=${() => this._saveDialog()}
+            >
+              ${a(t, "save")}
+            </button>
+          </div>
         </div>
       </ha-dialog>
     `;
@@ -817,14 +817,13 @@ let g = class extends C {
     const r = this._dialog, s = !r?.remindersEnabled || !!r.saving;
     return m`
       <div class="reminder-row">
-        <ha-textfield
-          outlined
-          .type=${"time"}
-          .label=${a(i, "reminderTime")}
-          .value=${t.time}
-          ?disabled=${s}
-          @input=${(n) => this._updateReminderTime(e, this._stringValue(n))}
-        ></ha-textfield>
+        ${this._renderTextField({
+      disabled: s,
+      label: a(i, "reminderTime"),
+      type: "time",
+      value: t.time,
+      onInput: (n) => this._updateReminderTime(e, n)
+    })}
         <label class="inline-check">
           <ha-checkbox
             .checked=${t.enabled}
@@ -878,6 +877,23 @@ let g = class extends C {
   }
   _statusLabel(t, e) {
     return t === "taken" ? a(e, "taken") : t === "late" ? a(e, "late") : t === "missed" ? a(e, "missed") : a(e, "today");
+  }
+  get _language() {
+    return this.hass?.locale?.language ?? this.hass?.language ?? "ru";
+  }
+  _renderTextField(t) {
+    return m`
+      <label class="text-field">
+        <span>${t.label}</span>
+        <input
+          .value=${t.value}
+          ?disabled=${t.disabled}
+          ?required=${t.required ?? !1}
+          type=${t.type ?? "text"}
+          @input=${(e) => t.onInput(this._stringValue(e))}
+        />
+      </label>
+    `;
   }
   _nextReminder(t, e) {
     return t.next_reminder ? t.next_reminder.time : a(e, "none");
@@ -995,7 +1011,7 @@ let g = class extends C {
   }
   async _saveDialog() {
     if (!this.hass || !this._dashboard || !this._dialog) return;
-    const t = this.hass.language, e = this._dialogPayload(t);
+    const t = this._language, e = this._dialogPayload(t);
     if (e)
       try {
         this._updateDialog({ saving: !0, error: void 0 });
@@ -1320,10 +1336,51 @@ g.styles = he`
       --ha-dialog-width-md: 560px;
     }
 
+    .dialog-content,
     .dialog-form {
       display: grid;
       gap: 14px;
+    }
+
+    .dialog-content {
       min-width: min(520px, calc(100vw - 64px));
+    }
+
+    .text-field {
+      color: var(--secondary-text-color);
+      display: grid;
+      font-size: 12px;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .text-field input {
+      background: var(--card-background-color);
+      border: 1px solid var(--divider-color);
+      border-radius: 4px;
+      box-sizing: border-box;
+      color: var(--primary-text-color);
+      font: inherit;
+      font-size: 16px;
+      height: 56px;
+      min-width: 0;
+      outline: none;
+      padding: 0 16px;
+      width: 100%;
+    }
+
+    .text-field input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    .text-field input:disabled {
+      color: var(--disabled-text-color);
+      opacity: 0.6;
+    }
+
+    .text-field input[type="time"] {
+      color-scheme: light dark;
     }
 
     .dialog-error {
@@ -1433,8 +1490,8 @@ g = x([
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "medication-manager",
-  name: "Medication Manager",
-  description: "Medication list and weekly history"
+  name: "Менеджер лекарств",
+  description: "Список лекарств и недельная история"
 });
 export {
   g as MedicationManagerCard

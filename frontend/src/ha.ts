@@ -1,5 +1,8 @@
 export interface HomeAssistant {
-  language: string;
+  language?: string;
+  locale?: {
+    language?: string;
+  };
   callWS<T>(message: Record<string, unknown>): Promise<T>;
   callService(
     domain: string,
@@ -19,4 +22,3 @@ export interface LovelaceCardConfig {
   config_entry_id?: string;
   title?: string;
 }
-

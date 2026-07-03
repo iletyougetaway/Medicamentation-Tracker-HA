@@ -82,7 +82,7 @@ export class MedicationManagerCard extends LitElement {
 
   protected override render() {
     const hass = this.hass;
-    const language = hass?.language ?? "en";
+    const language = this._language;
     const title = this._config.title ?? localize(language, "title");
 
     if (this._error) {
@@ -206,98 +206,94 @@ export class MedicationManagerCard extends LitElement {
         header-title=${title}
         @closed=${() => this._closeDialog()}
       >
-        <form class="dialog-form">
-          ${dialog.error
-            ? html`<div class="dialog-error">${dialog.error}</div>`
-            : nothing}
-          <ha-textfield
-            outlined
-            .label=${localize(language, "name")}
-            .value=${dialog.name}
-            ?disabled=${dialog.saving}
-            required
-            @input=${(event: Event) =>
-              this._updateDialog({ name: this._stringValue(event) })}
-          ></ha-textfield>
-          <ha-textfield
-            outlined
-            .label=${localize(language, "icon")}
-            .value=${dialog.icon}
-            ?disabled=${dialog.saving}
-            @input=${(event: Event) =>
-              this._updateDialog({ icon: this._stringValue(event) })}
-          ></ha-textfield>
-          <ha-textfield
-            outlined
-            .label=${localize(language, "nfcTag")}
-            .value=${dialog.tagId}
-            ?disabled=${dialog.saving}
-            @input=${(event: Event) =>
-              this._updateDialog({ tagId: this._stringValue(event) })}
-          ></ha-textfield>
-          <label class="toggle-row">
-            <ha-checkbox
-              .checked=${dialog.medicationEnabled}
-              ?disabled=${dialog.saving}
-              @change=${(event: Event) =>
-                this._updateDialog({
-                  medicationEnabled: this._checkedValue(event),
-                })}
-            ></ha-checkbox>
-            <span>${localize(language, "enableMedication")}</span>
-          </label>
-          <label class="toggle-row">
-            <ha-checkbox
-              .checked=${dialog.remindersEnabled}
-              ?disabled=${dialog.saving}
-              @change=${(event: Event) =>
-                this._updateDialog({
-                  remindersEnabled: this._checkedValue(event),
-                })}
-            ></ha-checkbox>
-            <span>${localize(language, "enableReminders")}</span>
-          </label>
-          <fieldset>
-            <legend>${localize(language, "reminders")}</legend>
-            ${dialog.reminders.length
-              ? dialog.reminders.map((reminder, index) =>
-                  this._renderReminderRow(reminder, index, language),
-                )
-              : html`
-                  <div class="reminder-empty">
-                    ${localize(language, "noReminders")}
-                  </div>
-                `}
+        <div class="dialog-content">
+          <form class="dialog-form">
+            ${dialog.error
+              ? html`<div class="dialog-error">${dialog.error}</div>`
+              : nothing}
+            ${this._renderTextField({
+              disabled: dialog.saving,
+              label: localize(language, "name"),
+              required: true,
+              value: dialog.name,
+              onInput: (value) => this._updateDialog({ name: value }),
+            })}
+            ${this._renderTextField({
+              disabled: dialog.saving,
+              label: localize(language, "icon"),
+              value: dialog.icon,
+              onInput: (value) => this._updateDialog({ icon: value }),
+            })}
+            ${this._renderTextField({
+              disabled: dialog.saving,
+              label: localize(language, "nfcTag"),
+              value: dialog.tagId,
+              onInput: (value) => this._updateDialog({ tagId: value }),
+            })}
+            <label class="toggle-row">
+              <ha-checkbox
+                .checked=${dialog.medicationEnabled}
+                ?disabled=${dialog.saving}
+                @change=${(event: Event) =>
+                  this._updateDialog({
+                    medicationEnabled: this._checkedValue(event),
+                  })}
+              ></ha-checkbox>
+              <span>${localize(language, "enableMedication")}</span>
+            </label>
+            <label class="toggle-row">
+              <ha-checkbox
+                .checked=${dialog.remindersEnabled}
+                ?disabled=${dialog.saving}
+                @change=${(event: Event) =>
+                  this._updateDialog({
+                    remindersEnabled: this._checkedValue(event),
+                  })}
+              ></ha-checkbox>
+              <span>${localize(language, "enableReminders")}</span>
+            </label>
+            <fieldset>
+              <legend>${localize(language, "reminders")}</legend>
+              ${dialog.reminders.length
+                ? dialog.reminders.map((reminder, index) =>
+                    this._renderReminderRow(reminder, index, language),
+                  )
+                : html`
+                    <div class="reminder-empty">
+                      ${localize(language, "noReminders")}
+                    </div>
+                  `}
+              <button
+                class="button outlined"
+                type="button"
+                ?disabled=${dialog.saving}
+                @click=${() => this._addReminder()}
+              >
+                <ha-icon icon="mdi:plus"></ha-icon>
+                ${localize(language, "addReminder")}
+              </button>
+            </fieldset>
+          </form>
+          <div class="dialog-actions">
+            ${this._renderDeleteActions(dialog, language)}
+            <span class="action-spacer"></span>
             <button
-              class="button outlined"
+              class="button text"
               type="button"
               ?disabled=${dialog.saving}
-              @click=${() => this._addReminder()}
+              @click=${() => this._closeDialog()}
             >
-              <ha-icon icon="mdi:plus"></ha-icon>
-              ${localize(language, "addReminder")}
+              ${localize(language, "cancel")}
             </button>
-          </fieldset>
-        </form>
-        <div slot="footer" class="dialog-actions">
-          ${this._renderDeleteActions(dialog, language)}
-          <span class="action-spacer"></span>
-          <button
-            class="button text"
-            type="button"
-            ?disabled=${dialog.saving}
-            @click=${() => this._closeDialog()}
-          >
-            ${localize(language, "cancel")}
-          </button>
-          <button
-            class="button filled"
-            type="button"
-            ?disabled=${dialog.saving}
-            @click=${() => this._saveDialog()}
-          >
-            ${localize(language, "save")}
-          </button>
+            <button
+              class="button filled"
+              type="button"
+              ?disabled=${dialog.saving}
+              @click=${() => this._saveDialog()}
+            >
+              ${localize(language, "save")}
+            </button>
+          </div>
         </div>
       </ha-dialog>
     `;
@@ -313,15 +309,13 @@ export class MedicationManagerCard extends LitElement {
 
     return html`
       <div class="reminder-row">
-        <ha-textfield
-          outlined
-          .type=${"time"}
-          .label=${localize(language, "reminderTime")}
-          .value=${reminder.time}
-          ?disabled=${disabled}
-          @input=${(event: Event) =>
-            this._updateReminderTime(index, this._stringValue(event))}
-        ></ha-textfield>
+        ${this._renderTextField({
+          disabled,
+          label: localize(language, "reminderTime"),
+          type: "time",
+          value: reminder.time,
+          onInput: (value) => this._updateReminderTime(index, value),
+        })}
         <label class="inline-check">
           <ha-checkbox
             .checked=${reminder.enabled}
@@ -393,6 +387,33 @@ export class MedicationManagerCard extends LitElement {
     if (status === "late") return localize(language, "late");
     if (status === "missed") return localize(language, "missed");
     return localize(language, "today");
+  }
+
+  private get _language(): string {
+    return this.hass?.locale?.language ?? this.hass?.language ?? "ru";
+  }
+
+  private _renderTextField(config: {
+    disabled: boolean;
+    label: string;
+    onInput: (value: string) => void;
+    required?: boolean;
+    type?: string;
+    value: string;
+  }) {
+    return html`
+      <label class="text-field">
+        <span>${config.label}</span>
+        <input
+          .value=${config.value}
+          ?disabled=${config.disabled}
+          ?required=${config.required ?? false}
+          type=${config.type ?? "text"}
+          @input=${(event: Event) =>
+            config.onInput(this._stringValue(event))}
+        />
+      </label>
+    `;
   }
 
   private _nextReminder(
@@ -545,7 +566,7 @@ export class MedicationManagerCard extends LitElement {
   private async _saveDialog(): Promise<void> {
     if (!this.hass || !this._dashboard || !this._dialog) return;
 
-    const language = this.hass.language;
+    const language = this._language;
     const payload = this._dialogPayload(language);
     if (!payload) return;
 
@@ -907,10 +928,51 @@ export class MedicationManagerCard extends LitElement {
       --ha-dialog-width-md: 560px;
     }
 
+    .dialog-content,
     .dialog-form {
       display: grid;
       gap: 14px;
+    }
+
+    .dialog-content {
       min-width: min(520px, calc(100vw - 64px));
+    }
+
+    .text-field {
+      color: var(--secondary-text-color);
+      display: grid;
+      font-size: 12px;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .text-field input {
+      background: var(--card-background-color);
+      border: 1px solid var(--divider-color);
+      border-radius: 4px;
+      box-sizing: border-box;
+      color: var(--primary-text-color);
+      font: inherit;
+      font-size: 16px;
+      height: 56px;
+      min-width: 0;
+      outline: none;
+      padding: 0 16px;
+      width: 100%;
+    }
+
+    .text-field input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    .text-field input:disabled {
+      color: var(--disabled-text-color);
+      opacity: 0.6;
+    }
+
+    .text-field input[type="time"] {
+      color-scheme: light dark;
     }
 
     .dialog-error {
@@ -1007,6 +1069,6 @@ declare global {
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "medication-manager",
-  name: "Medication Manager",
-  description: "Medication list and weekly history",
+  name: "Менеджер лекарств",
+  description: "Список лекарств и недельная история",
 });

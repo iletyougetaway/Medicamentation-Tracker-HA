@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
-import logging
 from typing import Any, Awaitable, Callable, cast
 from uuid import UUID
 
@@ -60,9 +60,7 @@ class MedicationNotification:
         _LOGGER.debug("Parsing Medication Manager notification metadata")
         try:
             if not isinstance(value, Mapping):
-                raise MedicationNotificationError(
-                    "Уведомление должно быть объектом"
-                )
+                raise MedicationNotificationError("Уведомление должно быть объектом")
             data = cast(Mapping[str, object], value)
             return cls(
                 medication_id=UUID(_required_str(data, "medication_id")),
@@ -225,6 +223,42 @@ class MedicationNotificationEngine:
                 "Не удалось отправить напоминание"
             ) from err
 
+    async def async_send_taken_confirmation(
+        self,
+        medication: Medication,
+        *,
+        notify_service: str,
+    ) -> None:
+        """Send a confirmation notification after an NFC intake."""
+        _LOGGER.debug(
+            "Sending Medication Manager intake confirmation for medication %s",
+            medication.id,
+        )
+        try:
+            normalized_service = _normalize_notify_service(notify_service)
+            await self._hass.services.async_call(
+                NOTIFY_DOMAIN,
+                normalized_service,
+                {
+                    "title": "Лекарство принято",
+                    "message": f"{medication.name} отмечено как принято.",
+                    "data": {"tag": _taken_confirmation_tag(medication.id)},
+                },
+                blocking=True,
+            )
+            _LOGGER.info(
+                "Sent Medication Manager intake confirmation for medication %s",
+                medication.id,
+            )
+        except HomeAssistantError:
+            _LOGGER.exception("Medication Manager intake confirmation failed")
+            raise
+        except Exception as err:
+            _LOGGER.exception("Unexpected Medication Manager intake confirmation error")
+            raise MedicationNotificationError(
+                "Не удалось отправить подтверждение приёма"
+            ) from err
+
     async def async_clear_for_medication(self, medication_id: UUID) -> None:
         """Clear active notifications for a medication."""
         _LOGGER.debug(
@@ -368,9 +402,7 @@ class MedicationNotificationEngine:
             )
         except Exception as err:
             _LOGGER.exception("Medication Manager notification dismiss failed")
-            raise MedicationNotificationError(
-                "Не удалось скрыть уведомление"
-            ) from err
+            raise MedicationNotificationError("Не удалось скрыть уведомление") from err
 
     async def _store_active_notification(
         self,
@@ -617,6 +649,18 @@ def _notification_tag(
         ) from err
 
 
+def _taken_confirmation_tag(medication_id: UUID) -> str:
+    """Return a stable notification tag for NFC intake confirmations."""
+    _LOGGER.debug("Building Medication Manager intake confirmation tag")
+    try:
+        return f"{DOMAIN}_{medication_id}_taken"
+    except Exception as err:
+        _LOGGER.exception("Medication Manager intake confirmation tag build failed")
+        raise MedicationNotificationError(
+            "Не удалось сформировать тег подтверждения приёма"
+        ) from err
+
+
 def _normalize_notify_service(value: str) -> str:
     """Normalize a Home Assistant notify service name."""
     _LOGGER.debug("Normalizing Medication Manager notify service")
@@ -659,9 +703,7 @@ def _normalize_snooze_minutes(value: int) -> int:
     _LOGGER.debug("Normalizing Medication Manager snooze minutes")
     try:
         if value < 1 or value > MAX_SNOOZE_MINUTES:
-            raise MedicationNotificationError(
-                "Минуты отсрочки должны быть от 1 до 240"
-            )
+            raise MedicationNotificationError("Минуты отсрочки должны быть от 1 до 240")
         return value
     except HomeAssistantError:
         raise
@@ -684,9 +726,7 @@ def _required_str(data: Mapping[str, object], key: str) -> str:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification string is invalid")
-        raise MedicationNotificationError(
-            f"Поле {key} заполнено некорректно"
-        ) from err
+        raise MedicationNotificationError(f"Поле {key} заполнено некорректно") from err
 
 
 def _optional_str(value: object) -> str | None:
@@ -732,17 +772,13 @@ def _optional_datetime(value: object) -> datetime | None:
         if value is None:
             return None
         if not isinstance(value, str):
-            raise MedicationNotificationError(
-                "Дата и время должны быть строкой"
-            )
+            raise MedicationNotificationError("Дата и время должны быть строкой")
         return _parse_datetime(value)
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Optional Medication Manager datetime is invalid")
-        raise MedicationNotificationError(
-            "Дата и время заполнены некорректно"
-        ) from err
+        raise MedicationNotificationError("Дата и время заполнены некорректно") from err
 
 
 def _normalize_optional_datetime(value: datetime | None) -> datetime | None:
@@ -760,9 +796,7 @@ def _normalize_optional_datetime(value: datetime | None) -> datetime | None:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification datetime is invalid")
-        raise MedicationNotificationError(
-            "Дата и время заполнены некорректно"
-        ) from err
+        raise MedicationNotificationError("Дата и время заполнены некорректно") from err
 
 
 def _parse_datetime(value: str) -> datetime:
@@ -779,9 +813,7 @@ def _parse_datetime(value: str) -> datetime:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification datetime parse failed")
-        raise MedicationNotificationError(
-            "Дата и время заполнены некорректно"
-        ) from err
+        raise MedicationNotificationError("Дата и время заполнены некорректно") from err
 
 
 def _format_datetime(value: datetime) -> str:

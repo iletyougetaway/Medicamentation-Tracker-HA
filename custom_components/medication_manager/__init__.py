@@ -65,6 +65,7 @@ async def async_setup_entry(
         )
         nfc = MedicationNfcEngine(
             hass,
+            entry,
             manager,
             notifications,
             coordinator.async_refresh_after_mutation,

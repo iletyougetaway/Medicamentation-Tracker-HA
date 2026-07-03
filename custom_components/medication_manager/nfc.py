@@ -7,11 +7,13 @@ import logging
 from typing import Any, cast
 
 from homeassistant.components.tag.const import EVENT_TAG_SCANNED, TAG_ID
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
+from .const import CONF_NOTIFY_SERVICE
 from .manager import MedicationManager
-from .models import HistorySource
+from .models import HistorySource, Medication
 from .notifications import MedicationNotificationEngine
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,6 +29,7 @@ class MedicationNfcEngine:
     def __init__(
         self,
         hass: HomeAssistant,
+        entry: ConfigEntry[object],
         manager: MedicationManager,
         notifications: MedicationNotificationEngine,
         on_mutation: Callable[[], Awaitable[None]] | None = None,
@@ -34,6 +37,7 @@ class MedicationNfcEngine:
         """Initialize the NFC engine."""
         _LOGGER.debug("Initializing Medication Manager NFC engine")
         self._hass = hass
+        self._entry = entry
         self._manager = manager
         self._notifications = notifications
         self._on_mutation = on_mutation
@@ -90,6 +94,7 @@ class MedicationNfcEngine:
                 source=HistorySource.NFC,
             )
             await self._notifications.async_clear_for_medication(medication.id)
+            await self._async_send_taken_confirmation(medication)
             await self._async_notify_mutation()
             _LOGGER.info(
                 "Recorded Medication Manager NFC intake for medication %s",
@@ -112,6 +117,24 @@ class MedicationNfcEngine:
             _LOGGER.exception("Medication Manager NFC mutation publish failed")
             raise MedicationNfcError("NFC mutation publish failed") from err
 
+    async def _async_send_taken_confirmation(self, medication: Medication) -> None:
+        """Send an NFC intake confirmation without blocking the intake state update."""
+        _LOGGER.debug("Sending Medication Manager NFC intake confirmation")
+        try:
+            notify_service = _notify_service_from_entry(self._entry)
+            if notify_service is None:
+                return
+            await self._notifications.async_send_taken_confirmation(
+                medication,
+                notify_service=notify_service,
+            )
+        except HomeAssistantError:
+            _LOGGER.exception("Medication Manager NFC confirmation notification failed")
+        except Exception:
+            _LOGGER.exception(
+                "Unexpected Medication Manager NFC confirmation notification error"
+            )
+
 
 def _tag_id_from_event(event: Event[Any]) -> str:
     """Extract and validate a Home Assistant tag id from an event."""
@@ -126,3 +149,29 @@ def _tag_id_from_event(event: Event[Any]) -> str:
     except Exception as err:
         _LOGGER.exception("Medication Manager NFC tag id is invalid")
         raise MedicationNfcError("NFC tag id is invalid") from err
+
+
+def _notify_service_from_entry(entry: ConfigEntry[object]) -> str | None:
+    """Return the configured mobile app notify service for NFC confirmations."""
+    _LOGGER.debug("Reading Medication Manager NFC notify service option")
+    try:
+        raw_value = entry.options.get(CONF_NOTIFY_SERVICE)
+        if raw_value is None:
+            raw_value = entry.data.get(CONF_NOTIFY_SERVICE)
+        if raw_value is None:
+            return None
+        if not isinstance(raw_value, str):
+            raise MedicationNfcError("Сервис уведомлений должен быть строкой")
+        normalized = raw_value.strip().removeprefix("notify.")
+        if not normalized:
+            return None
+        if not normalized.startswith("mobile_app_"):
+            raise MedicationNfcError("Сервис уведомлений должен быть mobile_app")
+        return normalized
+    except HomeAssistantError:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager NFC notify service option is invalid")
+        raise MedicationNfcError(
+            "Сервис уведомлений заполнен некорректно"
+        ) from err

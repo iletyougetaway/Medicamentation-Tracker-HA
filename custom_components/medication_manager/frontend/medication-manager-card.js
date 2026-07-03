@@ -1179,14 +1179,20 @@ g.styles = he`
       aspect-ratio: 1;
       background: var(--secondary-background-color);
       border-radius: 6px;
-      display: flex;
+      box-sizing: border-box;
+      display: grid;
       justify-content: center;
       line-height: 1;
       min-width: 0;
+      place-items: center;
     }
 
     .week ha-icon {
+      --mdc-icon-size: 18px;
+      display: block;
+      flex: 0 0 18px;
       height: 18px;
+      line-height: 18px;
       width: 18px;
     }
 

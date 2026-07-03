@@ -1,0 +1,15 @@
+.coverage
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+dist/
+build/
+node_modules/
+frontend/dist/
+frontend/node_modules/
+*.egg-info/
+.venv/
+venv/
+

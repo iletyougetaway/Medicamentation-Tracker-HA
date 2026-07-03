@@ -1,0 +1,18 @@
+{
+  "title": "Medication Manager",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Medication Manager",
+        "description": "Create the Medication Manager storage and services entry."
+      }
+    },
+    "error": {
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Medication Manager is already configured."
+    }
+  }
+}
+

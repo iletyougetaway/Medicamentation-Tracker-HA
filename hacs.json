@@ -1,0 +1,7 @@
+{
+  "name": "Medication Manager",
+  "domains": ["medication_manager"],
+  "homeassistant": "2026.1.0",
+  "render_readme": true
+}
+

@@ -931,33 +931,53 @@ export class MedicationManagerCard extends LitElement {
     .dialog-content,
     .dialog-form {
       display: grid;
-      gap: 14px;
+      gap: 16px;
     }
 
     .dialog-content {
-      min-width: min(520px, calc(100vw - 64px));
+      box-sizing: border-box;
+      min-width: min(520px, calc(100vw - 48px));
+      padding-top: 4px;
     }
 
     .text-field {
-      color: var(--secondary-text-color);
-      display: grid;
-      font-size: 12px;
-      gap: 4px;
+      display: block;
       min-width: 0;
+      position: relative;
+    }
+
+    .text-field span {
+      background: var(--card-background-color);
+      color: var(--secondary-text-color);
+      font-size: 12px;
+      inset-inline-start: 12px;
+      line-height: 16px;
+      max-width: calc(100% - 24px);
+      overflow: hidden;
+      padding: 0 4px;
+      position: absolute;
+      text-overflow: ellipsis;
+      top: -8px;
+      white-space: nowrap;
+      z-index: 1;
     }
 
     .text-field input {
       background: var(--card-background-color);
-      border: 1px solid var(--divider-color);
-      border-radius: 4px;
+      border: 1px solid var(--outline-color, var(--divider-color));
+      border-radius: 6px;
       box-sizing: border-box;
       color: var(--primary-text-color);
       font: inherit;
-      font-size: 16px;
-      height: 56px;
+      font-size: 15px;
+      height: 48px;
+      line-height: 20px;
       min-width: 0;
       outline: none;
-      padding: 0 16px;
+      padding: 14px 14px 10px;
+      transition:
+        border-color 120ms ease,
+        box-shadow 120ms ease;
       width: 100%;
     }
 
@@ -991,6 +1011,10 @@ export class MedicationManagerCard extends LitElement {
       min-width: 0;
     }
 
+    .inline-check {
+      min-height: 40px;
+    }
+
     .toggle-row span,
     .inline-check span {
       overflow-wrap: anywhere;
@@ -1000,7 +1024,7 @@ export class MedicationManagerCard extends LitElement {
       border: 1px solid var(--divider-color);
       border-radius: 8px;
       display: grid;
-      gap: 10px;
+      gap: 12px;
       margin: 0;
       padding: 12px;
     }
@@ -1014,8 +1038,8 @@ export class MedicationManagerCard extends LitElement {
     .reminder-row {
       align-items: center;
       display: grid;
-      gap: 8px;
-      grid-template-columns: minmax(120px, 1fr) minmax(0, 1fr) 40px;
+      gap: 10px;
+      grid-template-columns: minmax(136px, 160px) minmax(160px, 1fr) 40px;
     }
 
     .reminder-empty {
@@ -1029,6 +1053,8 @@ export class MedicationManagerCard extends LitElement {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      justify-content: flex-end;
+      padding-top: 2px;
       width: 100%;
     }
 
@@ -1049,12 +1075,25 @@ export class MedicationManagerCard extends LitElement {
       }
 
       .reminder-row {
+        align-items: start;
         grid-template-columns: 1fr 40px;
       }
 
       .reminder-row .inline-check {
         grid-column: 1 / -1;
         grid-row: 2;
+      }
+
+      .dialog-content {
+        min-width: 0;
+      }
+
+      .dialog-actions {
+        justify-content: stretch;
+      }
+
+      .dialog-actions .button {
+        flex: 1 1 auto;
       }
     }
   `;

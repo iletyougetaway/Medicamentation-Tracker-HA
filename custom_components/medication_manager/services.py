@@ -113,7 +113,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     except Exception as err:
         _LOGGER.exception("Unable to register Medication Manager service actions")
         raise HomeAssistantError(
-            "Medication Manager service registration failed"
+            "Не удалось зарегистрировать сервисы Менеджера лекарств"
         ) from err
 
 
@@ -139,7 +139,7 @@ async def _async_add_medication(call: ServiceCall) -> ServiceResponse:
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager add_medication failure")
-        raise HomeAssistantError("Medication Manager add_medication failed") from err
+        raise HomeAssistantError("Не удалось добавить лекарство") from err
 
 
 async def _async_update_medication(call: ServiceCall) -> ServiceResponse:
@@ -166,7 +166,7 @@ async def _async_update_medication(call: ServiceCall) -> ServiceResponse:
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager update_medication failure")
-        raise HomeAssistantError("Medication Manager update_medication failed") from err
+        raise HomeAssistantError("Не удалось изменить лекарство") from err
 
 
 async def _async_delete_medication(call: ServiceCall) -> ServiceResponse:
@@ -187,7 +187,7 @@ async def _async_delete_medication(call: ServiceCall) -> ServiceResponse:
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager delete_medication failure")
-        raise HomeAssistantError("Medication Manager delete_medication failed") from err
+        raise HomeAssistantError("Не удалось удалить лекарство") from err
 
 
 async def _async_bind_tag(call: ServiceCall) -> ServiceResponse:
@@ -209,7 +209,7 @@ async def _async_bind_tag(call: ServiceCall) -> ServiceResponse:
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager bind_tag failure")
-        raise HomeAssistantError("Medication Manager bind_tag failed") from err
+        raise HomeAssistantError("Не удалось привязать NFC-метку") from err
 
 
 async def _async_take_medication(call: ServiceCall) -> ServiceResponse:
@@ -239,7 +239,7 @@ async def _async_take_medication(call: ServiceCall) -> ServiceResponse:
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager take_medication failure")
-        raise HomeAssistantError("Medication Manager take_medication failed") from err
+        raise HomeAssistantError("Не удалось отметить приём лекарства") from err
 
 
 async def _async_send_reminder(call: ServiceCall) -> ServiceResponse:
@@ -271,7 +271,7 @@ async def _async_send_reminder(call: ServiceCall) -> ServiceResponse:
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager send_reminder failure")
-        raise HomeAssistantError("Medication Manager send_reminder failed") from err
+        raise HomeAssistantError("Не удалось отправить напоминание") from err
 
 
 def _runtime_from_call(call: ServiceCall) -> MedicationManagerRuntimeData:
@@ -282,23 +282,25 @@ def _runtime_from_call(call: ServiceCall) -> MedicationManagerRuntimeData:
         entry = call.hass.config_entries.async_get_entry(config_entry_id)
         if entry is None or entry.domain != DOMAIN:
             raise ServiceValidationError(
-                "Medication Manager config entry was not found"
+                "Запись интеграции Менеджера лекарств не найдена"
             )
         if entry.state is not ConfigEntryState.LOADED:
             raise ServiceValidationError(
-                "Medication Manager config entry is not loaded"
+                "Запись интеграции Менеджера лекарств не загружена"
             )
 
         runtime_data = getattr(entry, "runtime_data", None)
         if runtime_data is None:
-            raise ServiceValidationError("Medication Manager runtime data is missing")
+            raise ServiceValidationError(
+                "Внутренние данные Менеджера лекарств недоступны"
+            )
         return cast("MedicationManagerRuntimeData", runtime_data)
     except ServiceValidationError:
         raise
     except Exception as err:
         _LOGGER.exception("Unable to resolve Medication Manager runtime data")
         raise HomeAssistantError(
-            "Medication Manager runtime resolution failed"
+            "Не удалось получить внутренние данные Менеджера лекарств"
         ) from err
 
 
@@ -309,7 +311,9 @@ def _reminders_from_call(data: Mapping[str, Any]) -> tuple[MedicationReminder, .
         return _parse_reminders(cast(list[Mapping[str, Any]], data[ATTR_REMINDERS]))
     except Exception as err:
         _LOGGER.exception("Unable to read Medication Manager reminders")
-        raise ServiceValidationError("Reminder data is invalid") from err
+        raise ServiceValidationError(
+            "Данные напоминаний заполнены некорректно"
+        ) from err
 
 
 def _optional_reminders_from_call(
@@ -323,7 +327,9 @@ def _optional_reminders_from_call(
         return _parse_reminders(cast(list[Mapping[str, Any]], data[ATTR_REMINDERS]))
     except Exception as err:
         _LOGGER.exception("Unable to read optional Medication Manager reminders")
-        raise ServiceValidationError("Reminder data is invalid") from err
+        raise ServiceValidationError(
+            "Данные напоминаний заполнены некорректно"
+        ) from err
 
 
 def _parse_reminders(
@@ -341,7 +347,9 @@ def _parse_reminders(
         )
     except Exception as err:
         _LOGGER.exception("Medication Manager reminder parsing failed")
-        raise ServiceValidationError("Reminder data is invalid") from err
+        raise ServiceValidationError(
+            "Данные напоминаний заполнены некорректно"
+        ) from err
 
 
 def _medication_response(medication: Medication) -> ServiceResponse:
@@ -351,7 +359,7 @@ def _medication_response(medication: Medication) -> ServiceResponse:
         return {"medication": medication.as_storage()}
     except Exception as err:
         _LOGGER.exception("Medication Manager service response failed")
-        raise HomeAssistantError("Medication Manager response creation failed") from err
+        raise HomeAssistantError("Не удалось создать ответ сервиса") from err
 
 
 def _history_response(
@@ -367,7 +375,7 @@ def _history_response(
         }
     except Exception as err:
         _LOGGER.exception("Medication Manager history response failed")
-        raise HomeAssistantError("Medication Manager response creation failed") from err
+        raise HomeAssistantError("Не удалось создать ответ сервиса") from err
 
 
 def _ensure_list(value: object) -> list[object]:
@@ -375,13 +383,13 @@ def _ensure_list(value: object) -> list[object]:
     _LOGGER.debug("Validating Medication Manager service list value")
     try:
         if not isinstance(value, list):
-            raise vol.Invalid("expected a list")
+            raise vol.Invalid("ожидается список")
         return value
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager service list validation failed")
-        raise vol.Invalid("expected a list") from err
+        raise vol.Invalid("ожидается список") from err
 
 
 def _validate_uuid_string(value: object) -> str:
@@ -389,14 +397,14 @@ def _validate_uuid_string(value: object) -> str:
     _LOGGER.debug("Validating Medication Manager UUID service value")
     try:
         if not isinstance(value, str):
-            raise vol.Invalid("expected a UUID string")
+            raise vol.Invalid("ожидается строка UUID")
         UUID(value)
         return value
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager UUID service value is invalid")
-        raise vol.Invalid("expected a UUID string") from err
+        raise vol.Invalid("ожидается строка UUID") from err
 
 
 def _validate_service_time(value: object) -> time:
@@ -408,20 +416,20 @@ def _validate_service_time(value: object) -> time:
         elif isinstance(value, str):
             reminder_time = time.fromisoformat(value)
         else:
-            raise vol.Invalid("expected HH:MM time")
+            raise vol.Invalid("ожидается время в формате HH:MM")
 
         if (
             reminder_time.tzinfo is not None
             or reminder_time.second
             or reminder_time.microsecond
         ):
-            raise vol.Invalid("expected HH:MM time")
+            raise vol.Invalid("ожидается время в формате HH:MM")
         return reminder_time
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager service reminder time is invalid")
-        raise vol.Invalid("expected HH:MM time") from err
+        raise vol.Invalid("ожидается время в формате HH:MM") from err
 
 
 def _validate_datetime(value: object) -> datetime:
@@ -433,16 +441,16 @@ def _validate_datetime(value: object) -> datetime:
         elif isinstance(value, str):
             parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
         else:
-            raise vol.Invalid("expected datetime")
+            raise vol.Invalid("ожидается дата и время")
 
         if parsed.tzinfo is None:
-            raise vol.Invalid("expected timezone-aware datetime")
+            raise vol.Invalid("ожидается дата и время с часовым поясом")
         return parsed
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager service datetime is invalid")
-        raise vol.Invalid("expected timezone-aware datetime") from err
+        raise vol.Invalid("ожидается дата и время с часовым поясом") from err
 
 
 def _validate_history_source(value: object) -> str:
@@ -450,13 +458,13 @@ def _validate_history_source(value: object) -> str:
     _LOGGER.debug("Validating Medication Manager history source service value")
     try:
         if not isinstance(value, str):
-            raise vol.Invalid("expected history source")
+            raise vol.Invalid("ожидается источник истории")
         return HistorySource(value).value
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager history source service value is invalid")
-        raise vol.Invalid("expected history source") from err
+        raise vol.Invalid("ожидается источник истории") from err
 
 
 def _validate_take_status(value: object) -> str:
@@ -464,16 +472,18 @@ def _validate_take_status(value: object) -> str:
     _LOGGER.debug("Validating Medication Manager intake status service value")
     try:
         if not isinstance(value, str):
-            raise vol.Invalid("expected intake status")
+            raise vol.Invalid("ожидается статус приёма")
         status = HistoryStatus(value)
         if status is HistoryStatus.MISSED:
-            raise vol.Invalid("take_medication cannot create missed history")
+            raise vol.Invalid(
+                "нельзя создать пропущенный приём через take_medication"
+            )
         return status.value
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager intake status service value is invalid")
-        raise vol.Invalid("expected intake status") from err
+        raise vol.Invalid("ожидается статус приёма") from err
 
 
 def _validate_notify_service(value: object) -> str:
@@ -481,16 +491,16 @@ def _validate_notify_service(value: object) -> str:
     _LOGGER.debug("Validating Medication Manager notify service value")
     try:
         if not isinstance(value, str):
-            raise vol.Invalid("expected notify service")
+            raise vol.Invalid("ожидается сервис уведомлений")
         normalized = value.strip().removeprefix("notify.")
         if not normalized.startswith("mobile_app_"):
-            raise vol.Invalid("expected mobile_app notify service")
+            raise vol.Invalid("ожидается сервис уведомлений mobile_app")
         return normalized
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notify service value is invalid")
-        raise vol.Invalid("expected mobile_app notify service") from err
+        raise vol.Invalid("ожидается сервис уведомлений mobile_app") from err
 
 
 def _validate_snooze_minutes(value: object) -> int:
@@ -499,13 +509,13 @@ def _validate_snooze_minutes(value: object) -> int:
     try:
         minutes = vol.Coerce(int)(value)
         if minutes < 1 or minutes > 240:
-            raise vol.Invalid("expected value from 1 to 240")
+            raise vol.Invalid("ожидается значение от 1 до 240")
         return minutes
     except vol.Invalid:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager snooze minutes value is invalid")
-        raise vol.Invalid("expected value from 1 to 240") from err
+        raise vol.Invalid("ожидается значение от 1 до 240") from err
 
 
 _REMINDER_SCHEMA = vol.Schema(

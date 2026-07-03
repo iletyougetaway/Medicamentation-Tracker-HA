@@ -1,9 +1,9 @@
 # Разработка
 
-Medication Manager состоит из backend-интеграции Home Assistant и собранной
-Lovelace-карточки.
+Менеджер лекарств состоит из серверной части интеграции Home Assistant и
+собранной Lovelace-карточки.
 
-## Проверки backend
+## Проверки серверной части
 
 Перед pull request выполните:
 
@@ -13,7 +13,7 @@ python -m ruff check custom_components tests
 ```
 
 `python -m mypy custom_components tests` запускайте в окружении, где установлены
-dev-зависимости Home Assistant.
+зависимости Home Assistant для разработки.
 
 Тесты в `tests/` покрывают чистую доменную логику. В полном окружении их можно
 запускать через pytest. Без установленного Home Assistant доступен изолированный
@@ -39,7 +39,7 @@ npm run typecheck
 npm run build
 ```
 
-Production bundle записывается в
+Готовый production bundle записывается в
 `custom_components/medication_manager/frontend/medication-manager-card.js`. Этот
 файл должен быть в репозитории, потому что HACS устанавливает готовую карточку.
 
@@ -50,4 +50,4 @@ Production bundle записывается в
    `frontend/package.json`.
 3. Пересобрать frontend bundle.
 4. Добавить запись в `CHANGELOG.md`.
-5. Запустить backend и frontend проверки.
+5. Запустить проверки серверной части и frontend.

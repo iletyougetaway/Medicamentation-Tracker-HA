@@ -5,7 +5,7 @@ from __future__ import annotations
 from homeassistant.const import Platform
 
 DOMAIN = "medication_manager"
-NAME = "Medication Manager"
+NAME = "Менеджер лекарств"
 VERSION = "0.7.1"
 
 STORAGE_KEY = f"{DOMAIN}.storage"

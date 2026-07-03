@@ -39,7 +39,7 @@ class MedicationManagerCoordinator(DataUpdateCoordinator[MedicationManagerStoreD
         except Exception as err:
             _LOGGER.exception("Failed to initialize Medication Manager coordinator")
             raise HomeAssistantError(
-                "Medication Manager coordinator initialization failed"
+                "Не удалось инициализировать координатор Менеджера лекарств"
             ) from err
 
     async def _async_update_data(self) -> MedicationManagerStoreData:
@@ -52,7 +52,9 @@ class MedicationManagerCoordinator(DataUpdateCoordinator[MedicationManagerStoreD
             raise UpdateFailed(str(err)) from err
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager coordinator error")
-            raise UpdateFailed("Medication Manager coordinator refresh failed") from err
+            raise UpdateFailed(
+                "Не удалось обновить данные Менеджера лекарств"
+            ) from err
 
     async def async_refresh_after_mutation(self) -> None:
         """Push the latest manager snapshot to coordinator listeners."""
@@ -66,5 +68,5 @@ class MedicationManagerCoordinator(DataUpdateCoordinator[MedicationManagerStoreD
         except Exception as err:
             _LOGGER.exception("Unexpected error publishing Medication Manager state")
             raise HomeAssistantError(
-                "Medication Manager coordinator publish failed"
+                "Не удалось опубликовать данные Менеджера лекарств"
             ) from err

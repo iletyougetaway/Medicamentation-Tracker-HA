@@ -60,7 +60,7 @@
         },
         "icon": {
           "name": "Иконка",
-          "description": "Иконка Material Design для этого лекарства."
+          "description": "Иконка MDI для этого лекарства."
         },
         "tag_id": {
           "name": "NFC-метка",
@@ -94,7 +94,7 @@
         },
         "icon": {
           "name": "Иконка",
-          "description": "Новая иконка Material Design."
+          "description": "Новая иконка MDI."
         },
         "tag_id": {
           "name": "NFC-метка",

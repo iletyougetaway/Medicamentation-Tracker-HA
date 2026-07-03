@@ -53,7 +53,7 @@ class MedicationManager:
         except Exception as err:
             _LOGGER.exception("Failed to initialize Medication Manager state manager")
             raise HomeAssistantError(
-                "Medication Manager initialization failed"
+                "Не удалось инициализировать Менеджер лекарств"
             ) from err
 
     async def async_initialize(self) -> None:
@@ -71,7 +71,9 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error loading Medication Manager state")
-            raise HomeAssistantError("Medication Manager state loading failed") from err
+            raise HomeAssistantError(
+                "Не удалось загрузить данные Менеджера лекарств"
+            ) from err
 
     async def async_shutdown(self) -> None:
         """Release the in-memory Medication Manager state."""
@@ -81,7 +83,9 @@ class MedicationManager:
                 self._data = None
         except Exception as err:
             _LOGGER.exception("Medication Manager shutdown failed")
-            raise HomeAssistantError("Medication Manager shutdown failed") from err
+            raise HomeAssistantError(
+                "Не удалось остановить Менеджер лекарств"
+            ) from err
 
     async def async_get_snapshot(self) -> MedicationManagerStoreData:
         """Return the current immutable Medication Manager snapshot."""
@@ -94,7 +98,9 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error reading Medication Manager snapshot")
-            raise HomeAssistantError("Medication Manager snapshot failed") from err
+            raise HomeAssistantError(
+                "Не удалось получить снимок данных Менеджера лекарств"
+            ) from err
 
     async def async_get_settings(self) -> Mapping[str, JsonValue]:
         """Return the current immutable Medication Manager settings."""
@@ -108,7 +114,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error reading Medication Manager settings")
-            raise MedicationManagerError("Settings read failed") from err
+            raise MedicationManagerError("Не удалось прочитать настройки") from err
 
     async def async_update_settings(
         self,
@@ -129,7 +135,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error updating Medication Manager settings")
-            raise MedicationManagerError("Settings update failed") from err
+            raise MedicationManagerError("Не удалось обновить настройки") from err
 
     async def async_list_medications(self) -> tuple[Medication, ...]:
         """Return all medications sorted by display name."""
@@ -148,7 +154,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error listing medications")
-            raise MedicationManagerError("Medication listing failed") from err
+            raise MedicationManagerError("Не удалось получить список лекарств") from err
 
     async def async_get_medication(self, medication_id: UUID | str) -> Medication:
         """Return a single medication by id."""
@@ -165,7 +171,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error reading medication %s", medication_id)
-            raise MedicationManagerError("Medication read failed") from err
+            raise MedicationManagerError("Не удалось прочитать лекарство") from err
 
     async def async_find_medication_by_tag(self, tag_id: str) -> Medication | None:
         """Return the medication bound to an NFC tag id."""
@@ -186,7 +192,9 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error finding medication by tag")
-            raise MedicationManagerError("Medication tag lookup failed") from err
+            raise MedicationManagerError(
+                "Не удалось найти лекарство по NFC-метке"
+            ) from err
 
     async def async_list_history(
         self,
@@ -225,7 +233,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error listing Medication Manager history")
-            raise MedicationManagerError("History listing failed") from err
+            raise MedicationManagerError("Не удалось получить историю") from err
 
     async def async_latest_history(
         self,
@@ -250,7 +258,9 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error reading latest history")
-            raise MedicationManagerError("Latest history lookup failed") from err
+            raise MedicationManagerError(
+                "Не удалось получить последний приём"
+            ) from err
 
     async def async_weekly_history(
         self,
@@ -280,7 +290,9 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error reading weekly history")
-            raise MedicationManagerError("Weekly history lookup failed") from err
+            raise MedicationManagerError(
+                "Не удалось получить недельную историю"
+            ) from err
 
     async def async_add_medication(
         self,
@@ -324,7 +336,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error adding medication")
-            raise MedicationManagerError("Medication creation failed") from err
+            raise MedicationManagerError("Не удалось добавить лекарство") from err
 
     async def async_update_medication(
         self,
@@ -386,7 +398,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error updating medication %s", medication_id)
-            raise MedicationManagerError("Medication update failed") from err
+            raise MedicationManagerError("Не удалось изменить лекарство") from err
 
     async def async_delete_medication(self, medication_id: UUID | str) -> Medication:
         """Delete and persist an existing medication."""
@@ -410,7 +422,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error deleting medication %s", medication_id)
-            raise MedicationManagerError("Medication deletion failed") from err
+            raise MedicationManagerError("Не удалось удалить лекарство") from err
 
     async def async_bind_tag(
         self,
@@ -437,7 +449,9 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error binding tag to medication")
-            raise MedicationManagerError("Medication tag binding failed") from err
+            raise MedicationManagerError(
+                "Не удалось привязать NFC-метку"
+            ) from err
 
     async def async_record_history_entry(
         self,
@@ -489,7 +503,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error recording Medication Manager history")
-            raise MedicationManagerError("History recording failed") from err
+            raise MedicationManagerError("Не удалось записать историю") from err
 
     async def async_take_medication(
         self,
@@ -531,7 +545,7 @@ class MedicationManager:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error taking Medication Manager medication")
-            raise MedicationManagerError("Medication intake recording failed") from err
+            raise MedicationManagerError("Не удалось отметить приём") from err
 
     async def async_replace_data(
         self,
@@ -550,7 +564,7 @@ class MedicationManager:
         except Exception as err:
             _LOGGER.exception("Unexpected error replacing Medication Manager state")
             raise HomeAssistantError(
-                "Medication Manager state replacement failed"
+                "Не удалось заменить данные Менеджера лекарств"
             ) from err
 
     def _require_data(self) -> MedicationManagerStoreData:
@@ -558,14 +572,14 @@ class MedicationManager:
         _LOGGER.debug("Validating loaded Medication Manager state")
         try:
             if self._data is None:
-                raise HomeAssistantError("Medication Manager state is not loaded")
+                raise HomeAssistantError("Данные Менеджера лекарств не загружены")
             return self._data
         except HomeAssistantError:
             raise
         except Exception as err:
             _LOGGER.exception("Medication Manager state validation failed")
             raise HomeAssistantError(
-                "Medication Manager state validation failed"
+                "Не удалось проверить данные Менеджера лекарств"
             ) from err
 
     async def _async_store_locked(self, data: MedicationManagerStoreData) -> None:
@@ -580,7 +594,7 @@ class MedicationManager:
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager persistence error")
             raise MedicationManagerError(
-                "Medication Manager persistence failed"
+                "Не удалось сохранить данные Менеджера лекарств"
             ) from err
 
 
@@ -599,7 +613,9 @@ def _with_medications(
         )
     except Exception as err:
         _LOGGER.exception("Unable to build updated Medication Manager data")
-        raise MedicationManagerError("Medication Manager data update failed") from err
+        raise MedicationManagerError(
+            "Не удалось обновить данные Менеджера лекарств"
+        ) from err
 
 
 def _with_history(
@@ -618,7 +634,7 @@ def _with_history(
     except Exception as err:
         _LOGGER.exception("Unable to build updated Medication Manager history data")
         raise MedicationManagerError(
-            "Medication Manager history update failed"
+            "Не удалось обновить историю Менеджера лекарств"
         ) from err
 
 
@@ -638,7 +654,7 @@ def _with_settings(
     except Exception as err:
         _LOGGER.exception("Unable to build updated Medication Manager settings data")
         raise MedicationManagerError(
-            "Medication Manager settings update failed"
+            "Не удалось обновить настройки Менеджера лекарств"
         ) from err
 
 
@@ -651,13 +667,13 @@ def _get_medication(
     try:
         medication = medications.get(medication_id)
         if medication is None:
-            raise MedicationNotFoundError(f"Medication {medication_id} was not found")
+            raise MedicationNotFoundError(f"Лекарство {medication_id} не найдено")
         return medication
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication lookup failed for %s", medication_id)
-        raise MedicationManagerError("Medication lookup failed") from err
+        raise MedicationManagerError("Не удалось найти лекарство") from err
 
 
 def _coerce_medication_id(value: UUID | str) -> UUID:
@@ -667,7 +683,9 @@ def _coerce_medication_id(value: UUID | str) -> UUID:
         return value if isinstance(value, UUID) else UUID(value)
     except Exception as err:
         _LOGGER.exception("Invalid Medication Manager medication id %s", value)
-        raise MedicationValidationError("Medication id must be a valid UUID") from err
+        raise MedicationValidationError(
+            "ID лекарства должен быть корректным UUID"
+        ) from err
 
 
 def _normalize_text(value: str, field: str) -> str:
@@ -676,13 +694,15 @@ def _normalize_text(value: str, field: str) -> str:
     try:
         normalized = value.strip()
         if not normalized:
-            raise MedicationValidationError(f"{field} must not be empty")
+            raise MedicationValidationError(f"Поле {field} не должно быть пустым")
         return normalized
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Invalid Medication Manager text field %s", field)
-        raise MedicationValidationError(f"{field} is invalid") from err
+        raise MedicationValidationError(
+            f"Поле {field} заполнено некорректно"
+        ) from err
 
 
 def _normalize_optional_text(value: str | None, field: str) -> str | None:
@@ -695,7 +715,9 @@ def _normalize_optional_text(value: str | None, field: str) -> str | None:
         return normalized or None
     except Exception as err:
         _LOGGER.exception("Invalid optional Medication Manager text field %s", field)
-        raise MedicationValidationError(f"{field} is invalid") from err
+        raise MedicationValidationError(
+            f"Поле {field} заполнено некорректно"
+        ) from err
 
 
 def _normalize_icon(value: str) -> str:
@@ -706,7 +728,7 @@ def _normalize_icon(value: str) -> str:
         return normalized or DEFAULT_MEDICATION_ICON
     except Exception as err:
         _LOGGER.exception("Invalid Medication Manager icon")
-        raise MedicationValidationError("icon is invalid") from err
+        raise MedicationValidationError("Иконка заполнена некорректно") from err
 
 
 def _normalize_reminders(
@@ -722,7 +744,7 @@ def _normalize_reminders(
             _validate_reminder_time(reminder.time)
             if reminder.time in seen_times:
                 raise MedicationValidationError(
-                    f"Duplicate reminder time {reminder.time.strftime('%H:%M')}"
+                    f"Время напоминания {reminder.time.strftime('%H:%M')} уже используется"
                 )
             seen_times.add(reminder.time)
             normalized.append(reminder)
@@ -732,7 +754,9 @@ def _normalize_reminders(
         raise
     except Exception as err:
         _LOGGER.exception("Invalid Medication Manager reminder schedule")
-        raise MedicationValidationError("Reminder schedule is invalid") from err
+        raise MedicationValidationError(
+            "Расписание напоминаний заполнено некорректно"
+        ) from err
 
 
 def _validate_reminder_time(reminder_time: time) -> None:
@@ -744,12 +768,16 @@ def _validate_reminder_time(reminder_time: time) -> None:
             or reminder_time.second
             or reminder_time.microsecond
         ):
-            raise MedicationValidationError("Reminder time must use HH:MM format")
+            raise MedicationValidationError(
+                "Время напоминания должно быть в формате HH:MM"
+            )
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Invalid Medication Manager reminder time")
-        raise MedicationValidationError("Reminder time is invalid") from err
+        raise MedicationValidationError(
+            "Время напоминания заполнено некорректно"
+        ) from err
 
 
 def _ensure_tag_available(
@@ -769,13 +797,15 @@ def _ensure_tag_available(
                 continue
             if medication.tag_id == tag_id:
                 raise MedicationValidationError(
-                    f"NFC tag is already bound to medication {medication.id}"
+                    f"NFC-метка уже привязана к лекарству {medication.id}"
                 )
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager tag availability check failed")
-        raise MedicationValidationError("NFC tag availability check failed") from err
+        raise MedicationValidationError(
+            "Не удалось проверить доступность NFC-метки"
+        ) from err
 
 
 def _resolve_updated_tag_id(
@@ -789,7 +819,7 @@ def _resolve_updated_tag_id(
     try:
         if clear_tag and tag_id is not None:
             raise MedicationValidationError(
-                "tag_id and clear_tag must not be used together"
+                "Нельзя одновременно указать tag_id и clear_tag"
             )
         if clear_tag:
             return None
@@ -800,7 +830,9 @@ def _resolve_updated_tag_id(
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager tag update resolution failed")
-        raise MedicationValidationError("NFC tag update is invalid") from err
+        raise MedicationValidationError(
+            "Обновление NFC-метки заполнено некорректно"
+        ) from err
 
 
 def _normalize_taken_time(value: datetime | None) -> datetime:
@@ -814,7 +846,7 @@ def _normalize_taken_time(value: datetime | None) -> datetime:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager taken time normalization failed")
-        raise MedicationValidationError("taken_time is invalid") from err
+        raise MedicationValidationError("taken_time заполнено некорректно") from err
 
 
 def _normalize_optional_datetime(
@@ -831,7 +863,9 @@ def _normalize_optional_datetime(
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager optional datetime normalization failed")
-        raise MedicationValidationError(f"{field} is invalid") from err
+        raise MedicationValidationError(
+            f"Поле {field} заполнено некорректно"
+        ) from err
 
 
 def _normalize_datetime(value: datetime, field: str) -> datetime:
@@ -839,13 +873,17 @@ def _normalize_datetime(value: datetime, field: str) -> datetime:
     _LOGGER.debug("Normalizing Medication Manager datetime %s", field)
     try:
         if value.tzinfo is None:
-            raise MedicationValidationError(f"{field} must include timezone")
+            raise MedicationValidationError(
+                f"Поле {field} должно содержать часовой пояс"
+            )
         return value.astimezone(timezone.utc)
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager datetime normalization failed")
-        raise MedicationValidationError(f"{field} is invalid") from err
+        raise MedicationValidationError(
+            f"Поле {field} заполнено некорректно"
+        ) from err
 
 
 def _normalize_history_status(value: HistoryStatus | str) -> HistoryStatus:
@@ -855,7 +893,7 @@ def _normalize_history_status(value: HistoryStatus | str) -> HistoryStatus:
         return value if isinstance(value, HistoryStatus) else HistoryStatus(value)
     except Exception as err:
         _LOGGER.exception("Medication Manager history status is invalid")
-        raise MedicationValidationError("status is invalid") from err
+        raise MedicationValidationError("Статус заполнен некорректно") from err
 
 
 def _normalize_history_source(value: HistorySource | str) -> HistorySource:
@@ -865,7 +903,7 @@ def _normalize_history_source(value: HistorySource | str) -> HistorySource:
         return value if isinstance(value, HistorySource) else HistorySource(value)
     except Exception as err:
         _LOGGER.exception("Medication Manager history source is invalid")
-        raise MedicationValidationError("source is invalid") from err
+        raise MedicationValidationError("Источник заполнен некорректно") from err
 
 
 def _resolve_take_status(
@@ -881,7 +919,7 @@ def _resolve_take_status(
             normalized_status = _normalize_history_status(status)
             if normalized_status is HistoryStatus.MISSED:
                 raise MedicationValidationError(
-                    "take_medication cannot create missed history"
+                    "Нельзя создать пропущенный приём через take_medication"
                 )
             return normalized_status
         if scheduled_time is not None and taken_time > scheduled_time:
@@ -891,7 +929,7 @@ def _resolve_take_status(
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager intake status resolution failed")
-        raise MedicationValidationError("status is invalid") from err
+        raise MedicationValidationError("Статус заполнен некорректно") from err
 
 
 def _validate_history_range(
@@ -902,12 +940,16 @@ def _validate_history_range(
     _LOGGER.debug("Validating Medication Manager history range")
     try:
         if start is not None and end is not None and start >= end:
-            raise MedicationValidationError("start must be before end")
+            raise MedicationValidationError(
+                "Дата начала должна быть раньше даты окончания"
+            )
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager history range is invalid")
-        raise MedicationValidationError("History range is invalid") from err
+        raise MedicationValidationError(
+            "Диапазон истории заполнен некорректно"
+        ) from err
 
 
 def _normalize_history_limit(limit: int | None) -> int | None:
@@ -917,10 +959,10 @@ def _normalize_history_limit(limit: int | None) -> int | None:
         if limit is None:
             return None
         if limit <= 0:
-            raise MedicationValidationError("limit must be greater than zero")
+            raise MedicationValidationError("Лимит должен быть больше нуля")
         return limit
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager history limit is invalid")
-        raise MedicationValidationError("limit is invalid") from err
+        raise MedicationValidationError("Лимит заполнен некорректно") from err

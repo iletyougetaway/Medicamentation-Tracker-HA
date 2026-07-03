@@ -1,52 +1,50 @@
-# Medication Manager
+# Менеджер лекарств
 
-Medication Manager is a Home Assistant custom integration for medication
-tracking with NFC tags, reminders, history, and a Lovelace card.
+Менеджер лекарств - пользовательская интеграция Home Assistant для учёта
+лекарств, NFC-меток, напоминаний, истории приёма и карточки Lovelace.
 
-This repository is being built feature-by-feature. Version `0.6.0` contains
-the backend integration foundation, medication CRUD, history, notifications,
-NFC intake handling, and the Lovelace dashboard card.
+Версия `0.7.1` включает серверную часть интеграции, управление лекарствами,
+историю, уведомления, обработку NFC-меток и карточку панели управления.
 
-## Requirements
+## Требования
 
-- Home Assistant Core 2026 or newer
-- Python 3.13 or newer
-- HACS custom integration installation
+- Home Assistant Core 2026 или новее
+- Python 3.13 или новее
+- Установка пользовательской интеграции через HACS
 
-## Configuration
+## Настройка
 
-Medication Manager is configured from the Home Assistant UI.
+Менеджер лекарств настраивается из интерфейса Home Assistant.
 
-1. Install the integration through HACS.
-2. Restart Home Assistant.
-3. Go to **Settings** > **Devices & services**.
-4. Add **Medication Manager**.
-5. Configure the optional `mobile_app` notify service in the integration
-   options to enable automatic reminder notifications.
+1. Установите интеграцию через HACS.
+2. Перезапустите Home Assistant.
+3. Откройте **Настройки** > **Устройства и службы**.
+4. Добавьте интеграцию **Менеджер лекарств**.
+5. При необходимости укажите сервис уведомлений `mobile_app` в параметрах
+   интеграции, чтобы включить автоматические напоминания.
 
-No YAML configuration is supported or required.
+YAML-конфигурация не требуется и не поддерживается.
 
-## Lovelace Card
+## Карточка Lovelace
 
-Add this JavaScript module as a dashboard resource:
+Добавьте этот JavaScript-модуль в ресурсы панели управления:
 
 ```text
 /medication_manager/frontend/medication-manager-card.js?v=0.7.1
 ```
 
-Then add the **Medication Manager** card from the dashboard UI. The card type is
-`custom:medication-manager`.
+Затем добавьте карточку **Менеджер лекарств** из интерфейса панели управления. Тип
+карточки: `custom:medication-manager`.
 
-The card updates live when medication data changes. It displays the medication
-list, today's state, next reminder, last intake, and weekly history. Medication
-creation and editing are handled from the card UI without YAML.
+Карточка обновляется при изменении данных, показывает список лекарств, статус
+на сегодня, следующее напоминание, последний приём и недельную историю. Добавить
+или изменить лекарство можно прямо из карточки без YAML.
 
-Russian quick-start documentation is available in
-[`docs/ru/quick-start.md`](docs/ru/quick-start.md).
+Документация по быстрому старту: [`docs/ru/quick-start.md`](docs/ru/quick-start.md).
 
-Development notes are available in [`docs/development.md`](docs/development.md)
-and [`docs/ru/development.md`](docs/ru/development.md).
+Заметки для разработки: [`docs/development.md`](docs/development.md) и
+[`docs/ru/development.md`](docs/ru/development.md).
 
-## License
+## Лицензия
 
-Medication Manager is released under the MIT License.
+Менеджер лекарств распространяется по лицензии MIT.

@@ -1,212 +1,212 @@
 {
-  "title": "Medication Manager",
+  "title": "Менеджер лекарств",
   "config": {
     "step": {
       "user": {
-        "title": "Set up Medication Manager",
-        "description": "Create the Medication Manager storage and services entry.",
+        "title": "Настройка Менеджера лекарств",
+        "description": "Создайте запись для лекарств, расписаний и истории.",
         "data": {
-          "notify_service": "Mobile app notify service",
-          "snooze_minutes": "Snooze minutes"
+          "notify_service": "Сервис уведомлений mobile_app",
+          "snooze_minutes": "Минуты отсрочки"
         },
         "data_description": {
-          "notify_service": "Optional mobile_app notify service used for automatic reminders, for example mobile_app_phone.",
-          "snooze_minutes": "Default minutes for Remind Later notification actions."
+          "notify_service": "Необязательный сервис mobile_app для автоматических напоминаний, например mobile_app_phone.",
+          "snooze_minutes": "Сколько минут ждать после действия Напомнить позже."
         }
       }
     },
     "error": {
-      "invalid_notify_service": "Use a mobile_app notify service, for example mobile_app_phone.",
-      "invalid_snooze_minutes": "Snooze minutes must be between 1 and 240.",
-      "unknown": "Unexpected error"
+      "invalid_notify_service": "Укажите сервис mobile_app, например mobile_app_phone.",
+      "invalid_snooze_minutes": "Минуты отсрочки должны быть от 1 до 240.",
+      "unknown": "Произошла непредвиденная ошибка"
     },
     "abort": {
-      "already_configured": "Medication Manager is already configured."
+      "already_configured": "Менеджер лекарств уже настроен."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Medication Manager options",
-        "description": "Configure automatic medication reminder notifications.",
+        "title": "Параметры Менеджера лекарств",
+        "description": "Настройте автоматические уведомления о приёме лекарств.",
         "data": {
-          "notify_service": "Mobile app notify service",
-          "snooze_minutes": "Snooze minutes"
+          "notify_service": "Сервис уведомлений mobile_app",
+          "snooze_minutes": "Минуты отсрочки"
         },
         "data_description": {
-          "notify_service": "Optional mobile_app notify service used for automatic reminders, for example mobile_app_phone.",
-          "snooze_minutes": "Default minutes for Remind Later notification actions."
+          "notify_service": "Необязательный сервис mobile_app для автоматических напоминаний, например mobile_app_phone.",
+          "snooze_minutes": "Сколько минут ждать после действия Напомнить позже."
         }
       }
     },
     "error": {
-      "invalid_notify_service": "Use a mobile_app notify service, for example mobile_app_phone.",
-      "invalid_snooze_minutes": "Snooze minutes must be between 1 and 240.",
-      "unknown": "Unexpected error"
+      "invalid_notify_service": "Укажите сервис mobile_app, например mobile_app_phone.",
+      "invalid_snooze_minutes": "Минуты отсрочки должны быть от 1 до 240.",
+      "unknown": "Произошла непредвиденная ошибка"
     }
   },
   "services": {
     "add_medication": {
-      "name": "Add medication",
-      "description": "Add a medication to Medication Manager.",
+      "name": "Добавить лекарство",
+      "description": "Добавляет лекарство в Менеджер лекарств.",
       "fields": {
         "config_entry_id": {
-          "name": "Config entry",
-          "description": "Medication Manager config entry that owns the medication."
+          "name": "Запись интеграции",
+          "description": "Запись Менеджера лекарств для этого лекарства."
         },
         "name": {
-          "name": "Name",
-          "description": "Medication display name."
+          "name": "Название",
+          "description": "Отображаемое название лекарства."
         },
         "icon": {
-          "name": "Icon",
-          "description": "Material Design icon for this medication."
+          "name": "Иконка",
+          "description": "Иконка MDI для этого лекарства."
         },
         "tag_id": {
-          "name": "NFC tag",
-          "description": "Optional NFC tag id to bind to this medication."
+          "name": "NFC-метка",
+          "description": "Необязательный ID NFC-метки для привязки."
         },
         "enabled": {
-          "name": "Enabled",
-          "description": "Whether this medication is active."
+          "name": "Включено",
+          "description": "Определяет, активно ли это лекарство."
         },
         "reminders": {
-          "name": "Reminders",
-          "description": "List of reminder objects with time and enabled fields."
+          "name": "Напоминания",
+          "description": "Список напоминаний с полями time и enabled."
         }
       }
     },
     "update_medication": {
-      "name": "Update medication",
-      "description": "Update an existing medication.",
+      "name": "Изменить лекарство",
+      "description": "Изменяет существующее лекарство.",
       "fields": {
         "config_entry_id": {
-          "name": "Config entry",
-          "description": "Medication Manager config entry that owns the medication."
+          "name": "Запись интеграции",
+          "description": "Запись Менеджера лекарств для этого лекарства."
         },
         "medication_id": {
-          "name": "Medication ID",
-          "description": "Medication UUID."
+          "name": "ID лекарства",
+          "description": "UUID лекарства."
         },
         "name": {
-          "name": "Name",
-          "description": "New medication display name."
+          "name": "Название",
+          "description": "Новое отображаемое название лекарства."
         },
         "icon": {
-          "name": "Icon",
-          "description": "New Material Design icon."
+          "name": "Иконка",
+          "description": "Новая иконка MDI."
         },
         "tag_id": {
-          "name": "NFC tag",
-          "description": "New NFC tag id."
+          "name": "NFC-метка",
+          "description": "Новый идентификатор NFC-метки."
         },
         "clear_tag": {
-          "name": "Clear NFC tag",
-          "description": "Remove the currently bound NFC tag."
+          "name": "Очистить NFC-метку",
+          "description": "Удаляет текущую привязку NFC-метки."
         },
         "enabled": {
-          "name": "Enabled",
-          "description": "Whether this medication is active."
+          "name": "Включено",
+          "description": "Определяет, активно ли это лекарство."
         },
         "reminders": {
-          "name": "Reminders",
-          "description": "Replacement list of reminder objects."
+          "name": "Напоминания",
+          "description": "Новый список напоминаний с полями time и enabled."
         }
       }
     },
     "delete_medication": {
-      "name": "Delete medication",
-      "description": "Delete an existing medication.",
+      "name": "Удалить лекарство",
+      "description": "Удаляет существующее лекарство.",
       "fields": {
         "config_entry_id": {
-          "name": "Config entry",
-          "description": "Medication Manager config entry that owns the medication."
+          "name": "Запись интеграции",
+          "description": "Запись Менеджера лекарств для этого лекарства."
         },
         "medication_id": {
-          "name": "Medication ID",
-          "description": "Medication UUID."
+          "name": "ID лекарства",
+          "description": "UUID лекарства."
         }
       }
     },
     "bind_tag": {
-      "name": "Bind NFC tag",
-      "description": "Bind an NFC tag id to an existing medication.",
+      "name": "Привязать NFC-метку",
+      "description": "Привязывает идентификатор NFC-метки к существующему лекарству.",
       "fields": {
         "config_entry_id": {
-          "name": "Config entry",
-          "description": "Medication Manager config entry that owns the medication."
+          "name": "Запись интеграции",
+          "description": "Запись Менеджера лекарств для этого лекарства."
         },
         "medication_id": {
-          "name": "Medication ID",
-          "description": "Medication UUID."
+          "name": "ID лекарства",
+          "description": "UUID лекарства."
         },
         "tag_id": {
-          "name": "NFC tag",
-          "description": "NFC tag id to bind."
+          "name": "NFC-метка",
+          "description": "Идентификатор NFC-метки для привязки."
         }
       }
     },
     "take_medication": {
-      "name": "Take medication",
-      "description": "Record a medication intake in history.",
+      "name": "Отметить приём лекарства",
+      "description": "Записывает приём лекарства в историю.",
       "fields": {
         "config_entry_id": {
-          "name": "Config entry",
-          "description": "Medication Manager config entry that owns the medication."
+          "name": "Запись интеграции",
+          "description": "Запись Менеджера лекарств для этого лекарства."
         },
         "medication_id": {
-          "name": "Medication ID",
-          "description": "Medication UUID."
+          "name": "ID лекарства",
+          "description": "UUID лекарства."
         },
         "scheduled_time": {
-          "name": "Scheduled time",
-          "description": "Optional scheduled reminder datetime for this intake."
+          "name": "Плановое время",
+          "description": "Необязательное плановое время напоминания для этого приёма."
         },
         "taken_time": {
-          "name": "Taken time",
-          "description": "Optional actual intake datetime. Defaults to now."
+          "name": "Время приёма",
+          "description": "Необязательное фактическое время приёма. По умолчанию сейчас."
         },
         "source": {
-          "name": "Source",
-          "description": "Source that recorded this intake."
+          "name": "Источник",
+          "description": "Источник, который записал этот приём."
         },
         "status": {
-          "name": "Status",
-          "description": "Optional intake status. Defaults to taken or late."
+          "name": "Статус",
+          "description": "Необязательный статус приёма. По умолчанию taken или late."
         }
       }
     },
     "send_reminder": {
-      "name": "Send reminder",
-      "description": "Send a mobile app medication reminder.",
+      "name": "Отправить напоминание",
+      "description": "Отправляет напоминание через мобильное приложение.",
       "fields": {
         "config_entry_id": {
-          "name": "Config entry",
-          "description": "Medication Manager config entry that owns the medication."
+          "name": "Запись интеграции",
+          "description": "Запись Менеджера лекарств для этого лекарства."
         },
         "medication_id": {
-          "name": "Medication ID",
-          "description": "Medication UUID."
+          "name": "ID лекарства",
+          "description": "UUID лекарства."
         },
         "notify_service": {
-          "name": "Notify service",
-          "description": "Mobile app notify service, for example mobile_app_phone."
+          "name": "Сервис уведомлений",
+          "description": "Сервис mobile_app, например mobile_app_phone."
         },
         "scheduled_time": {
-          "name": "Scheduled time",
-          "description": "Optional scheduled reminder datetime."
+          "name": "Плановое время",
+          "description": "Необязательное плановое время напоминания."
         },
         "title": {
-          "name": "Title",
-          "description": "Optional notification title."
+          "name": "Заголовок",
+          "description": "Необязательный заголовок уведомления."
         },
         "message": {
-          "name": "Message",
-          "description": "Optional notification message."
+          "name": "Сообщение",
+          "description": "Необязательный текст уведомления."
         },
         "snooze_minutes": {
-          "name": "Snooze minutes",
-          "description": "Minutes to wait after Remind Later is pressed."
+          "name": "Отложить на минуты",
+          "description": "Сколько минут ждать после нажатия Напомнить позже."
         }
       }
     }

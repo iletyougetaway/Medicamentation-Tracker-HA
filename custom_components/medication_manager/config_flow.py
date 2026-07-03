@@ -36,7 +36,9 @@ class MedicationManagerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return MedicationManagerOptionsFlow(config_entry)
         except Exception as err:
             _LOGGER.exception("Medication Manager options flow creation failed")
-            raise RuntimeError("Medication Manager options flow failed") from err
+            raise RuntimeError(
+                "Не удалось создать поток параметров Менеджера лекарств"
+            ) from err
 
     async def async_step_user(
         self,
@@ -87,7 +89,9 @@ class MedicationManagerOptionsFlow(config_entries.OptionsFlow):
             self._config_entry = config_entry
         except Exception as err:
             _LOGGER.exception("Medication Manager options flow initialization failed")
-            raise RuntimeError("Medication Manager options flow failed") from err
+            raise RuntimeError(
+                "Не удалось инициализировать параметры Менеджера лекарств"
+            ) from err
 
     async def async_step_init(
         self,
@@ -148,7 +152,9 @@ def _options_schema(defaults: dict[str, Any]) -> vol.Schema:
         )
     except Exception as err:
         _LOGGER.exception("Medication Manager options schema failed")
-        raise RuntimeError("Medication Manager options schema failed") from err
+        raise RuntimeError(
+            "Не удалось создать схему параметров Менеджера лекарств"
+        ) from err
 
 
 def _normalized_options(user_input: dict[str, Any]) -> dict[str, Any]:

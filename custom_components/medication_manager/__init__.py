@@ -40,7 +40,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected error setting up %s domain", DOMAIN)
-        raise HomeAssistantError("Medication Manager domain setup failed") from err
+        raise HomeAssistantError(
+            "Не удалось настроить домен Менеджера лекарств"
+        ) from err
 
     _LOGGER.debug("%s domain setup complete", DOMAIN)
     return True
@@ -96,7 +98,9 @@ async def async_setup_entry(
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected error setting up %s", DOMAIN)
-        raise HomeAssistantError("Medication Manager setup failed") from err
+        raise HomeAssistantError(
+            "Не удалось настроить Менеджер лекарств"
+        ) from err
 
     _LOGGER.info("Medication Manager config entry %s is ready", entry.entry_id)
     return True
@@ -129,7 +133,9 @@ async def async_unload_entry(
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected error unloading %s", DOMAIN)
-        raise HomeAssistantError("Medication Manager unload failed") from err
+        raise HomeAssistantError(
+            "Не удалось выгрузить Менеджер лекарств"
+        ) from err
 
 
 async def _async_update_listener(
@@ -152,4 +158,6 @@ async def _async_update_listener(
             "Unexpected reload failure for Medication Manager %s",
             entry_name,
         )
-        raise HomeAssistantError("Medication Manager reload failed") from err
+        raise HomeAssistantError(
+            "Не удалось перезагрузить Менеджер лекарств"
+        ) from err

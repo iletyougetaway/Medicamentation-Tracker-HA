@@ -1,6 +1,6 @@
 {
   "domain": "medication_manager",
-  "name": "Medication Manager",
+  "name": "Менеджер лекарств",
   "codeowners": ["@ghstify"],
   "config_flow": true,
   "dependencies": ["tag"],

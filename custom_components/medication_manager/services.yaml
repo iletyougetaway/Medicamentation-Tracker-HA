@@ -7,7 +7,7 @@ add_medication:
           integration: medication_manager
     name:
       required: true
-      example: "Vitamin D"
+      example: "Витамин D"
       selector:
         text:
     icon:
@@ -41,7 +41,7 @@ update_medication:
       selector:
         text:
     name:
-      example: "Vitamin D"
+      example: "Витамин D"
       selector:
         text:
     icon:

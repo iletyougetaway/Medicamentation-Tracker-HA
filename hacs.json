@@ -1,7 +1,6 @@
 {
-  "name": "Medication Manager",
+  "name": "Менеджер лекарств",
   "domains": ["medication_manager"],
   "homeassistant": "2026.1.0",
   "render_readme": true
 }
-

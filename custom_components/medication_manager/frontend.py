@@ -35,4 +35,6 @@ async def async_setup_frontend(hass: HomeAssistant) -> None:
         )
     except Exception as err:
         _LOGGER.exception("Medication Manager frontend setup failed")
-        raise HomeAssistantError("Medication Manager frontend setup failed") from err
+        raise HomeAssistantError(
+            "Не удалось настроить frontend Менеджера лекарств"
+        ) from err

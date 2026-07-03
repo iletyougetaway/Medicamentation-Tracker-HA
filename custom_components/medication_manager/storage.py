@@ -29,7 +29,7 @@ class MedicationManagerStore:
         except Exception as err:
             _LOGGER.exception("Medication Manager storage initialization failed")
             raise HomeAssistantError(
-                "Medication Manager storage initialization failed"
+                "Не удалось инициализировать хранилище Менеджера лекарств"
             ) from err
 
     async def async_load(self) -> MedicationManagerStoreData:
@@ -46,7 +46,7 @@ class MedicationManagerStore:
             data = MedicationManagerStoreData.from_storage(stored)
             if data.version != STORAGE_VERSION:
                 raise HomeAssistantError(
-                    f"Unsupported Medication Manager storage version {data.version}"
+                    f"Неподдерживаемая версия хранилища Менеджера лекарств: {data.version}"
                 )
             return data
         except HomeAssistantError:
@@ -55,11 +55,13 @@ class MedicationManagerStore:
         except ValueError as err:
             _LOGGER.exception("Medication Manager storage data is invalid")
             raise HomeAssistantError(
-                "Medication Manager storage data is invalid"
+                "Данные хранилища Менеджера лекарств повреждены"
             ) from err
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager storage load error")
-            raise HomeAssistantError("Medication Manager storage load failed") from err
+            raise HomeAssistantError(
+                "Не удалось загрузить хранилище Менеджера лекарств"
+            ) from err
 
     async def async_save(self, data: MedicationManagerStoreData) -> None:
         """Save Medication Manager data to Home Assistant storage."""
@@ -72,8 +74,10 @@ class MedicationManagerStore:
         except ValueError as err:
             _LOGGER.exception("Medication Manager storage serialization failed")
             raise HomeAssistantError(
-                "Medication Manager storage serialization failed"
+                "Не удалось сериализовать хранилище Менеджера лекарств"
             ) from err
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager storage save error")
-            raise HomeAssistantError("Medication Manager storage save failed") from err
+            raise HomeAssistantError(
+                "Не удалось сохранить хранилище Менеджера лекарств"
+            ) from err

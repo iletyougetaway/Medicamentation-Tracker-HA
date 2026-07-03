@@ -34,45 +34,8 @@ const RU = {
   unnamed: "Новое лекарство",
 };
 
-const EN = {
-  add: "Add",
-  addMedication: "Add medication",
-  addReminder: "Add reminder",
-  cancel: "Cancel",
-  delete: "Delete",
-  deleteConfirm: "Delete medication?",
-  deleteMedication: "Delete medication",
-  edit: "Edit",
-  editMedication: "Edit medication",
-  empty: "No medications",
-  enableMedication: "Medication enabled",
-  enableReminder: "Reminder enabled",
-  enableReminders: "Enable reminders",
-  icon: "Icon",
-  invalidReminder: "Check reminder times",
-  last: "Last intake",
-  late: "Late",
-  missed: "Missed",
-  name: "Name",
-  next: "Next",
-  noReminders: "No reminders added",
-  none: "No data",
-  nfcTag: "NFC tag",
-  removeReminder: "Remove reminder",
-  reminderTime: "Time",
-  reminders: "Reminders",
-  requiredName: "Enter medication name",
-  save: "Save",
-  take: "Mark taken",
-  taken: "Taken",
-  today: "Today",
-  title: "Medication Manager",
-  unnamed: "New medication",
-};
-
-export type TranslationKey = keyof typeof EN;
+export type TranslationKey = keyof typeof RU;
 
 export function localize(language: string | undefined, key: TranslationKey): string {
-  const normalized = (language ?? "ru").toLowerCase().replace("_", "-");
-  return normalized.startsWith("en") ? EN[key] : RU[key];
+  return RU[key];
 }

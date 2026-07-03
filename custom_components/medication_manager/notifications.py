@@ -60,7 +60,9 @@ class MedicationNotification:
         _LOGGER.debug("Parsing Medication Manager notification metadata")
         try:
             if not isinstance(value, Mapping):
-                raise MedicationNotificationError("notification must be an object")
+                raise MedicationNotificationError(
+                    "Уведомление должно быть объектом"
+                )
             data = cast(Mapping[str, object], value)
             return cls(
                 medication_id=UUID(_required_str(data, "medication_id")),
@@ -80,7 +82,7 @@ class MedicationNotification:
         except Exception as err:
             _LOGGER.exception("Medication Manager notification metadata is invalid")
             raise MedicationNotificationError(
-                "Notification metadata is invalid"
+                "Метаданные уведомления заполнены некорректно"
             ) from err
 
     def as_storage(self) -> JsonObject:
@@ -107,7 +109,7 @@ class MedicationNotification:
         except Exception as err:
             _LOGGER.exception("Medication Manager notification serialization failed")
             raise MedicationNotificationError(
-                "Notification serialization failed"
+                "Не удалось сериализовать уведомление"
             ) from err
 
 
@@ -143,7 +145,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Medication Manager notification engine failed to start")
             raise MedicationNotificationError(
-                "Notification engine start failed"
+                "Не удалось запустить уведомления"
             ) from err
 
     async def async_stop(self) -> None:
@@ -158,7 +160,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Medication Manager notification engine failed to stop")
             raise MedicationNotificationError(
-                "Notification engine stop failed"
+                "Не удалось остановить уведомления"
             ) from err
 
     async def async_send_reminder(
@@ -200,9 +202,9 @@ class MedicationNotificationEngine:
                 {
                     "title": (
                         normalized_title
-                        or f"Medication reminder: {medication.name}"
+                        or f"Напоминание о лекарстве: {medication.name}"
                     ),
-                    "message": normalized_message or f"Time to take {medication.name}.",
+                    "message": normalized_message or f"Пора принять {medication.name}.",
                     "data": _notification_data(notification),
                 },
                 blocking=True,
@@ -220,7 +222,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager notification error")
             raise MedicationNotificationError(
-                "Reminder notification failed"
+                "Не удалось отправить напоминание"
             ) from err
 
     async def async_clear_for_medication(self, medication_id: UUID) -> None:
@@ -246,7 +248,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager notification clear error")
             raise MedicationNotificationError(
-                "Notification clear failed"
+                "Не удалось очистить уведомления"
             ) from err
 
     async def async_clear_all(self) -> None:
@@ -265,7 +267,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Unexpected clear all notification error")
             raise MedicationNotificationError(
-                "Notification clear all failed"
+                "Не удалось очистить все уведомления"
             ) from err
 
     async def _async_handle_action_event(self, event: Event[Any]) -> None:
@@ -307,7 +309,9 @@ class MedicationNotificationEngine:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager Take action error")
-            raise MedicationNotificationError("Take action failed") from err
+            raise MedicationNotificationError(
+                "Не удалось обработать действие Принял(а)"
+            ) from err
 
     async def _handle_remind_later_action(
         self,
@@ -342,7 +346,9 @@ class MedicationNotificationEngine:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager Remind Later error")
-            raise MedicationNotificationError("Remind Later action failed") from err
+            raise MedicationNotificationError(
+                "Не удалось обработать действие Напомнить позже"
+            ) from err
 
     async def _clear_notification(
         self,
@@ -363,7 +369,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Medication Manager notification dismiss failed")
             raise MedicationNotificationError(
-                "Notification dismiss failed"
+                "Не удалось скрыть уведомление"
             ) from err
 
     async def _store_active_notification(
@@ -381,7 +387,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Unable to store Medication Manager notification")
             raise MedicationNotificationError(
-                "Notification storage failed"
+                "Не удалось сохранить уведомление"
             ) from err
 
     async def _active_notifications(self) -> dict[str, MedicationNotification]:
@@ -401,7 +407,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Unable to read Medication Manager notifications")
             raise MedicationNotificationError(
-                "Notification settings read failed"
+                "Не удалось прочитать настройки уведомлений"
             ) from err
 
     async def _replace_active_notifications(
@@ -423,7 +429,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Unable to replace Medication Manager notifications")
             raise MedicationNotificationError(
-                "Notification settings update failed"
+                "Не удалось обновить настройки уведомлений"
             ) from err
 
     async def _async_notify_mutation(self) -> None:
@@ -437,7 +443,7 @@ class MedicationNotificationEngine:
         except Exception as err:
             _LOGGER.exception("Medication Manager notification mutation failed")
             raise MedicationNotificationError(
-                "Notification mutation publish failed"
+                "Не удалось опубликовать изменение уведомлений"
             ) from err
 
     def _schedule_snooze(self, notification: MedicationNotification) -> None:
@@ -463,7 +469,9 @@ class MedicationNotificationEngine:
             )
         except Exception as err:
             _LOGGER.exception("Medication Manager snooze scheduling failed")
-            raise MedicationNotificationError("Snooze scheduling failed") from err
+            raise MedicationNotificationError(
+                "Не удалось запланировать отложенное напоминание"
+            ) from err
 
     async def _async_send_snoozed_notification(
         self,
@@ -500,7 +508,9 @@ class MedicationNotificationEngine:
                     self._cancel_snooze(tag)
         except Exception as err:
             _LOGGER.exception("Medication Manager snooze cancellation failed")
-            raise MedicationNotificationError("Snooze cancellation failed") from err
+            raise MedicationNotificationError(
+                "Не удалось отменить отложенное напоминание"
+            ) from err
 
     def _cancel_all_snoozes(self) -> None:
         """Cancel every pending snoozed reminder."""
@@ -510,7 +520,9 @@ class MedicationNotificationEngine:
                 self._cancel_snooze(tag)
         except Exception as err:
             _LOGGER.exception("Medication Manager snooze clear failed")
-            raise MedicationNotificationError("Snooze clear failed") from err
+            raise MedicationNotificationError(
+                "Не удалось очистить отложенные напоминания"
+            ) from err
 
     def _cancel_snooze(self, tag: str) -> None:
         """Cancel one pending snoozed reminder."""
@@ -522,7 +534,9 @@ class MedicationNotificationEngine:
             self._snooze_records.pop(tag, None)
         except Exception as err:
             _LOGGER.exception("Medication Manager snooze cancel failed")
-            raise MedicationNotificationError("Snooze cancel failed") from err
+            raise MedicationNotificationError(
+                "Не удалось отменить отложенное напоминание"
+            ) from err
 
 
 def _notification_data(notification: MedicationNotification) -> JsonObject:
@@ -534,19 +548,21 @@ def _notification_data(notification: MedicationNotification) -> JsonObject:
             "actions": [
                 {
                     "action": _action_name(ACTION_TAKE, notification.tag),
-                    "title": "Take",
+                    "title": "Принял(а)",
                     "action_data": {"tag": notification.tag},
                 },
                 {
                     "action": _action_name(ACTION_REMIND_LATER, notification.tag),
-                    "title": "Remind Later",
+                    "title": "Напомнить позже",
                     "action_data": {"tag": notification.tag},
                 },
             ],
         }
     except Exception as err:
         _LOGGER.exception("Medication Manager notification data build failed")
-        raise MedicationNotificationError("Notification data build failed") from err
+        raise MedicationNotificationError(
+            "Не удалось сформировать данные уведомления"
+        ) from err
 
 
 def _action_name(action: str, tag: str) -> str:
@@ -556,7 +572,9 @@ def _action_name(action: str, tag: str) -> str:
         return f"{DOMAIN}_{action}_{tag}"
     except Exception as err:
         _LOGGER.exception("Medication Manager action name build failed")
-        raise MedicationNotificationError("Notification action name failed") from err
+        raise MedicationNotificationError(
+            "Не удалось сформировать действие уведомления"
+        ) from err
 
 
 def _notification_for_action(
@@ -577,7 +595,9 @@ def _notification_for_action(
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification action resolution failed")
-        raise MedicationNotificationError("Notification action is invalid") from err
+        raise MedicationNotificationError(
+            "Действие уведомления заполнено некорректно"
+        ) from err
 
 
 def _notification_tag(
@@ -592,7 +612,9 @@ def _notification_tag(
         return f"{DOMAIN}_{medication_id}_{int(scheduled_time.timestamp())}"
     except Exception as err:
         _LOGGER.exception("Medication Manager notification tag build failed")
-        raise MedicationNotificationError("Notification tag build failed") from err
+        raise MedicationNotificationError(
+            "Не удалось сформировать тег уведомления"
+        ) from err
 
 
 def _normalize_notify_service(value: str) -> str:
@@ -601,14 +623,20 @@ def _normalize_notify_service(value: str) -> str:
     try:
         normalized = value.strip()
         if not normalized:
-            raise MedicationNotificationError("notify service must not be empty")
+            raise MedicationNotificationError(
+                "Сервис уведомлений не должен быть пустым"
+            )
         normalized = normalized.removeprefix("notify.")
         if not normalized.startswith("mobile_app_"):
-            raise MedicationNotificationError("notify service must be mobile_app")
+            raise MedicationNotificationError(
+                "Сервис уведомлений должен быть mobile_app"
+            )
         return normalized
     except Exception as err:
         _LOGGER.exception("Medication Manager notify service is invalid")
-        raise MedicationNotificationError("Notify service is invalid") from err
+        raise MedicationNotificationError(
+            "Сервис уведомлений заполнен некорректно"
+        ) from err
 
 
 def _normalize_optional_text(value: str | None) -> str | None:
@@ -621,7 +649,9 @@ def _normalize_optional_text(value: str | None) -> str | None:
         return normalized or None
     except Exception as err:
         _LOGGER.exception("Medication Manager notification text is invalid")
-        raise MedicationNotificationError("Notification text is invalid") from err
+        raise MedicationNotificationError(
+            "Текст уведомления заполнен некорректно"
+        ) from err
 
 
 def _normalize_snooze_minutes(value: int) -> int:
@@ -629,13 +659,17 @@ def _normalize_snooze_minutes(value: int) -> int:
     _LOGGER.debug("Normalizing Medication Manager snooze minutes")
     try:
         if value < 1 or value > MAX_SNOOZE_MINUTES:
-            raise MedicationNotificationError("snooze minutes is out of range")
+            raise MedicationNotificationError(
+                "Минуты отсрочки должны быть от 1 до 240"
+            )
         return value
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager snooze minutes is invalid")
-        raise MedicationNotificationError("Snooze minutes is invalid") from err
+        raise MedicationNotificationError(
+            "Минуты отсрочки заполнены некорректно"
+        ) from err
 
 
 def _required_str(data: Mapping[str, object], key: str) -> str:
@@ -644,13 +678,15 @@ def _required_str(data: Mapping[str, object], key: str) -> str:
     try:
         value = data[key]
         if not isinstance(value, str):
-            raise MedicationNotificationError(f"{key} must be a string")
+            raise MedicationNotificationError(f"Поле {key} должно быть строкой")
         return value
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification string is invalid")
-        raise MedicationNotificationError(f"{key} is invalid") from err
+        raise MedicationNotificationError(
+            f"Поле {key} заполнено некорректно"
+        ) from err
 
 
 def _optional_str(value: object) -> str | None:
@@ -660,13 +696,15 @@ def _optional_str(value: object) -> str | None:
         if value is None:
             return None
         if not isinstance(value, str):
-            raise MedicationNotificationError("value must be a string")
+            raise MedicationNotificationError("Значение должно быть строкой")
         return value
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager optional string is invalid")
-        raise MedicationNotificationError("optional string is invalid") from err
+        raise MedicationNotificationError(
+            "Необязательная строка заполнена некорректно"
+        ) from err
 
 
 def _optional_int(value: object, default: int) -> int:
@@ -676,13 +714,15 @@ def _optional_int(value: object, default: int) -> int:
         if value is None:
             return default
         if not isinstance(value, int) or isinstance(value, bool):
-            raise MedicationNotificationError("value must be an integer")
+            raise MedicationNotificationError("Значение должно быть целым числом")
         return _normalize_snooze_minutes(value)
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager optional integer is invalid")
-        raise MedicationNotificationError("optional integer is invalid") from err
+        raise MedicationNotificationError(
+            "Необязательное число заполнено некорректно"
+        ) from err
 
 
 def _optional_datetime(value: object) -> datetime | None:
@@ -692,13 +732,17 @@ def _optional_datetime(value: object) -> datetime | None:
         if value is None:
             return None
         if not isinstance(value, str):
-            raise MedicationNotificationError("datetime must be a string")
+            raise MedicationNotificationError(
+                "Дата и время должны быть строкой"
+            )
         return _parse_datetime(value)
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Optional Medication Manager datetime is invalid")
-        raise MedicationNotificationError("datetime is invalid") from err
+        raise MedicationNotificationError(
+            "Дата и время заполнены некорректно"
+        ) from err
 
 
 def _normalize_optional_datetime(value: datetime | None) -> datetime | None:
@@ -708,13 +752,17 @@ def _normalize_optional_datetime(value: datetime | None) -> datetime | None:
         if value is None:
             return None
         if value.tzinfo is None:
-            raise MedicationNotificationError("datetime must include timezone")
+            raise MedicationNotificationError(
+                "Дата и время должны содержать часовой пояс"
+            )
         return value.astimezone(timezone.utc)
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification datetime is invalid")
-        raise MedicationNotificationError("datetime is invalid") from err
+        raise MedicationNotificationError(
+            "Дата и время заполнены некорректно"
+        ) from err
 
 
 def _parse_datetime(value: str) -> datetime:
@@ -723,13 +771,17 @@ def _parse_datetime(value: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
         if parsed.tzinfo is None:
-            raise MedicationNotificationError("datetime must include timezone")
+            raise MedicationNotificationError(
+                "Дата и время должны содержать часовой пояс"
+            )
         return parsed.astimezone(timezone.utc)
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification datetime parse failed")
-        raise MedicationNotificationError("datetime is invalid") from err
+        raise MedicationNotificationError(
+            "Дата и время заполнены некорректно"
+        ) from err
 
 
 def _format_datetime(value: datetime) -> str:
@@ -737,10 +789,14 @@ def _format_datetime(value: datetime) -> str:
     _LOGGER.debug("Formatting Medication Manager notification datetime")
     try:
         if value.tzinfo is None:
-            raise MedicationNotificationError("datetime must include timezone")
+            raise MedicationNotificationError(
+                "Дата и время должны содержать часовой пояс"
+            )
         return value.astimezone(timezone.utc).isoformat()
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notification datetime format failed")
-        raise MedicationNotificationError("datetime formatting failed") from err
+        raise MedicationNotificationError(
+            "Не удалось отформатировать дату и время"
+        ) from err

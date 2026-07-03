@@ -44,7 +44,9 @@ async def async_setup_api(hass: HomeAssistant) -> None:
         domain_data[DATA_API_REGISTERED] = True
     except Exception as err:
         _LOGGER.exception("Medication Manager WebSocket API setup failed")
-        raise HomeAssistantError("Medication Manager API setup failed") from err
+        raise HomeAssistantError(
+            "Не удалось настроить API Менеджера лекарств"
+        ) from err
 
 
 @websocket_api.websocket_command(
@@ -74,7 +76,9 @@ async def _websocket_dashboard(
         raise
     except Exception as err:
         _LOGGER.exception("Unexpected Medication Manager dashboard API error")
-        raise HomeAssistantError("Medication Manager dashboard API failed") from err
+        raise HomeAssistantError(
+            "Не удалось получить данные карточки Менеджера лекарств"
+        ) from err
 
 
 def _loaded_entry(
@@ -89,13 +93,17 @@ def _loaded_entry(
             entries = [entry for entry in entries if entry.entry_id == entry_id]
         loaded = [entry for entry in entries if entry.state is ConfigEntryState.LOADED]
         if not loaded:
-            raise HomeAssistantError("Medication Manager config entry is not loaded")
+            raise HomeAssistantError(
+                "Запись интеграции Менеджера лекарств не загружена"
+            )
         return cast(MedicationManagerConfigEntry, loaded[0])
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager API config entry resolution failed")
-        raise HomeAssistantError("Medication Manager entry lookup failed") from err
+        raise HomeAssistantError(
+            "Не удалось найти запись интеграции Менеджера лекарств"
+        ) from err
 
 
 async def _dashboard_payload(
@@ -124,7 +132,9 @@ async def _dashboard_payload(
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager dashboard payload failed")
-        raise HomeAssistantError("Medication Manager dashboard payload failed") from err
+        raise HomeAssistantError(
+            "Не удалось сформировать данные карточки Менеджера лекарств"
+        ) from err
 
 
 def _medication_payload(
@@ -169,7 +179,7 @@ def _medication_payload(
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager medication payload failed")
-        raise HomeAssistantError("Medication payload failed") from err
+        raise HomeAssistantError("Не удалось сформировать данные лекарства") from err
 
 
 def _today_status(
@@ -196,7 +206,7 @@ def _today_status(
         return None
     except Exception as err:
         _LOGGER.exception("Medication Manager today status failed")
-        raise HomeAssistantError("Medication today status failed") from err
+        raise HomeAssistantError("Не удалось определить статус на сегодня") from err
 
 
 def _next_reminder(medication: Medication, now: datetime) -> JsonObject | None:
@@ -223,4 +233,6 @@ def _next_reminder(medication: Medication, now: datetime) -> JsonObject | None:
         return None
     except Exception as err:
         _LOGGER.exception("Medication Manager next reminder failed")
-        raise HomeAssistantError("Medication next reminder failed") from err
+        raise HomeAssistantError(
+            "Не удалось определить следующее напоминание"
+        ) from err

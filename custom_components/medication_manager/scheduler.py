@@ -66,7 +66,9 @@ class MedicationReminderScheduler:
             self._unsub_data_update: CALLBACK_TYPE | None = None
         except Exception as err:
             _LOGGER.exception("Medication Manager scheduler initialization failed")
-            raise MedicationSchedulerError("Scheduler initialization failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось инициализировать планировщик"
+            ) from err
 
     async def async_start(self) -> None:
         """Start reminder scheduling."""
@@ -85,7 +87,9 @@ class MedicationReminderScheduler:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager scheduler start error")
-            raise MedicationSchedulerError("Scheduler start failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось запустить планировщик"
+            ) from err
 
     async def async_stop(self) -> None:
         """Stop reminder scheduling."""
@@ -97,7 +101,9 @@ class MedicationReminderScheduler:
             self._cancel_all()
         except Exception as err:
             _LOGGER.exception("Medication Manager scheduler stop failed")
-            raise MedicationSchedulerError("Scheduler stop failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось остановить планировщик"
+            ) from err
 
     async def async_reschedule(self) -> None:
         """Reschedule reminders from the latest medication snapshot."""
@@ -118,7 +124,9 @@ class MedicationReminderScheduler:
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager reschedule error")
-            raise MedicationSchedulerError("Reminder reschedule failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось перепланировать напоминания"
+            ) from err
 
     async def _async_handle_data_update(self, _event: Event[object]) -> None:
         """Reschedule reminders after medication data changes."""
@@ -143,7 +151,9 @@ class MedicationReminderScheduler:
             raise
         except Exception as err:
             _LOGGER.exception("Medication Manager medication scheduling failed")
-            raise MedicationSchedulerError("Medication scheduling failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось запланировать лекарство"
+            ) from err
 
     def _schedule_reminder(
         self,
@@ -180,7 +190,9 @@ class MedicationReminderScheduler:
             )
         except Exception as err:
             _LOGGER.exception("Medication Manager reminder scheduling failed")
-            raise MedicationSchedulerError("Reminder scheduling failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось запланировать напоминание"
+            ) from err
 
     async def _async_send_reminder(
         self,
@@ -229,7 +241,9 @@ class MedicationReminderScheduler:
             raise
         except Exception as err:
             _LOGGER.exception("Medication Manager scheduler mutation failed")
-            raise MedicationSchedulerError("Scheduler mutation failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось применить изменение планировщика"
+            ) from err
 
     def _cancel_all(self) -> None:
         """Cancel every scheduled reminder callback."""
@@ -240,7 +254,9 @@ class MedicationReminderScheduler:
             self._unsubs.clear()
         except Exception as err:
             _LOGGER.exception("Medication Manager scheduler cancellation failed")
-            raise MedicationSchedulerError("Scheduler cancellation failed") from err
+            raise MedicationSchedulerError(
+                "Не удалось отменить напоминания"
+            ) from err
 
 
 def _reminder_key(medication_id: UUID, reminder_time: time) -> str:
@@ -250,7 +266,9 @@ def _reminder_key(medication_id: UUID, reminder_time: time) -> str:
         return f"{medication_id}_{reminder_time.strftime('%H:%M')}"
     except Exception as err:
         _LOGGER.exception("Medication Manager reminder key failed")
-        raise MedicationSchedulerError("Reminder key failed") from err
+        raise MedicationSchedulerError(
+            "Не удалось сформировать ключ напоминания"
+        ) from err
 
 
 def _next_due_at(reminder_time: time, now: datetime) -> datetime:
@@ -263,7 +281,9 @@ def _next_due_at(reminder_time: time, now: datetime) -> datetime:
         return candidate
     except Exception as err:
         _LOGGER.exception("Medication Manager next reminder datetime failed")
-        raise MedicationSchedulerError("Next reminder datetime failed") from err
+        raise MedicationSchedulerError(
+            "Не удалось определить время следующего напоминания"
+        ) from err
 
 
 def _reminder_still_enabled(
@@ -279,7 +299,9 @@ def _reminder_still_enabled(
         )
     except Exception as err:
         _LOGGER.exception("Medication Manager reminder enabled check failed")
-        raise MedicationSchedulerError("Reminder enabled check failed") from err
+        raise MedicationSchedulerError(
+            "Не удалось проверить, включено ли напоминание"
+        ) from err
 
 
 def _notify_service_from_entry(entry: ConfigEntry[object]) -> str | None:
@@ -292,18 +314,24 @@ def _notify_service_from_entry(entry: ConfigEntry[object]) -> str | None:
         if raw_value is None:
             return None
         if not isinstance(raw_value, str):
-            raise MedicationSchedulerError("notify service must be a string")
+            raise MedicationSchedulerError(
+                "Сервис уведомлений должен быть строкой"
+            )
         normalized = raw_value.strip().removeprefix("notify.")
         if not normalized:
             return None
         if not normalized.startswith("mobile_app_"):
-            raise MedicationSchedulerError("notify service must be mobile_app")
+            raise MedicationSchedulerError(
+                "Сервис уведомлений должен быть mobile_app"
+            )
         return normalized
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager notify service option is invalid")
-        raise MedicationSchedulerError("Notify service option is invalid") from err
+        raise MedicationSchedulerError(
+            "Сервис уведомлений заполнен некорректно"
+        ) from err
 
 
 def _snooze_minutes_from_entry(entry: ConfigEntry[object]) -> int:
@@ -317,12 +345,18 @@ def _snooze_minutes_from_entry(entry: ConfigEntry[object]) -> int:
             return DEFAULT_SNOOZE_MINUTES
         minutes = cast(int, raw_value)
         if not isinstance(minutes, int) or isinstance(minutes, bool):
-            raise MedicationSchedulerError("snooze minutes must be an integer")
+            raise MedicationSchedulerError(
+                "Минуты отсрочки должны быть целым числом"
+            )
         if minutes < 1 or minutes > 240:
-            raise MedicationSchedulerError("snooze minutes is out of range")
+            raise MedicationSchedulerError(
+                "Минуты отсрочки должны быть от 1 до 240"
+            )
         return minutes
     except HomeAssistantError:
         raise
     except Exception as err:
         _LOGGER.exception("Medication Manager snooze option is invalid")
-        raise MedicationSchedulerError("Snooze option is invalid") from err
+        raise MedicationSchedulerError(
+            "Параметр отсрочки заполнен некорректно"
+        ) from err

@@ -54,7 +54,9 @@ class MedicationManagerStore:
             raise
         except ValueError as err:
             _LOGGER.exception("Medication Manager storage data is invalid")
-            raise HomeAssistantError("Medication Manager storage data is invalid") from err
+            raise HomeAssistantError(
+                "Medication Manager storage data is invalid"
+            ) from err
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager storage load error")
             raise HomeAssistantError("Medication Manager storage load failed") from err
@@ -75,4 +77,3 @@ class MedicationManagerStore:
         except Exception as err:
             _LOGGER.exception("Unexpected Medication Manager storage save error")
             raise HomeAssistantError("Medication Manager storage save failed") from err
-

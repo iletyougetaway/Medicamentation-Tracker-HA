@@ -79,7 +79,7 @@
         },
         "reminders": {
           "name": "Reminders",
-          "description": "Replacement list of reminder objects with time and enabled fields."
+          "description": "Replacement list of reminder objects."
         }
       }
     },
@@ -112,6 +112,36 @@
         "tag_id": {
           "name": "NFC tag",
           "description": "NFC tag id to bind."
+        }
+      }
+    },
+    "take_medication": {
+      "name": "Take medication",
+      "description": "Record a medication intake in history.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Medication Manager config entry that owns the medication."
+        },
+        "medication_id": {
+          "name": "Medication ID",
+          "description": "Medication UUID."
+        },
+        "scheduled_time": {
+          "name": "Scheduled time",
+          "description": "Optional scheduled reminder datetime for this intake."
+        },
+        "taken_time": {
+          "name": "Taken time",
+          "description": "Optional actual intake datetime. Defaults to now."
+        },
+        "source": {
+          "name": "Source",
+          "description": "Source that recorded this intake."
+        },
+        "status": {
+          "name": "Status",
+          "description": "Optional intake status. Defaults to taken or late."
         }
       }
     }

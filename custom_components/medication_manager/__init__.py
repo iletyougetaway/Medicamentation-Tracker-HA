@@ -114,5 +114,8 @@ async def _async_update_listener(
         raise
     except Exception as err:
         entry_name = entry.data.get(CONF_NAME, entry.entry_id)
-        _LOGGER.exception("Unexpected reload failure for Medication Manager %s", entry_name)
+        _LOGGER.exception(
+            "Unexpected reload failure for Medication Manager %s",
+            entry_name,
+        )
         raise HomeAssistantError("Medication Manager reload failed") from err

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from datetime import time
+from datetime import datetime, time
 import logging
 from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
@@ -11,7 +11,12 @@ from uuid import UUID
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 import homeassistant.helpers.config_validation as cv
 
@@ -22,7 +27,11 @@ from .const import (
     ATTR_MEDICATION_ID,
     ATTR_NAME,
     ATTR_REMINDERS,
+    ATTR_SCHEDULED_TIME,
+    ATTR_SOURCE,
+    ATTR_STATUS,
     ATTR_TAG_ID,
+    ATTR_TAKEN_TIME,
     ATTR_TIME,
     DATA_SERVICES_REGISTERED,
     DEFAULT_MEDICATION_ICON,
@@ -30,10 +39,12 @@ from .const import (
     SERVICE_ADD_MEDICATION,
     SERVICE_BIND_TAG,
     SERVICE_DELETE_MEDICATION,
+    SERVICE_TAKE_MEDICATION,
     SERVICE_UPDATE_MEDICATION,
 )
 from .manager import MedicationManagerError
-from .models import Medication, MedicationReminder
+from .models import HistoryEntry, HistorySource, HistoryStatus, Medication
+from .models import MedicationReminder
 
 if TYPE_CHECKING:
     from .runtime import MedicationManagerRuntimeData
@@ -76,6 +87,13 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             SERVICE_BIND_TAG,
             _async_bind_tag,
             schema=BIND_TAG_SCHEMA,
+            supports_response=SupportsResponse.OPTIONAL,
+        )
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_TAKE_MEDICATION,
+            _async_take_medication,
+            schema=TAKE_MEDICATION_SCHEMA,
             supports_response=SupportsResponse.OPTIONAL,
         )
         domain_data[DATA_SERVICES_REGISTERED] = True
@@ -182,6 +200,33 @@ async def _async_bind_tag(call: ServiceCall) -> ServiceResponse:
         raise HomeAssistantError("Medication Manager bind_tag failed") from err
 
 
+async def _async_take_medication(call: ServiceCall) -> ServiceResponse:
+    """Handle the take medication service action."""
+    _LOGGER.debug("Handling Medication Manager take_medication service action")
+    try:
+        runtime_data = _runtime_from_call(call)
+        medication_id = cast(str, call.data[ATTR_MEDICATION_ID])
+        entry = await runtime_data.manager.async_take_medication(
+            medication_id,
+            scheduled_time=cast(datetime | None, call.data.get(ATTR_SCHEDULED_TIME)),
+            taken_time=cast(datetime | None, call.data.get(ATTR_TAKEN_TIME)),
+            source=cast(HistorySource | str, call.data[ATTR_SOURCE]),
+            status=cast(HistoryStatus | str | None, call.data.get(ATTR_STATUS)),
+        )
+        medication = await runtime_data.manager.async_get_medication(medication_id)
+        await runtime_data.coordinator.async_refresh_after_mutation()
+        return _history_response(entry, medication)
+    except MedicationManagerError as err:
+        _LOGGER.warning("Medication Manager take_medication rejected: %s", err)
+        raise ServiceValidationError(str(err)) from err
+    except HomeAssistantError:
+        _LOGGER.exception("Medication Manager take_medication failed")
+        raise
+    except Exception as err:
+        _LOGGER.exception("Unexpected Medication Manager take_medication failure")
+        raise HomeAssistantError("Medication Manager take_medication failed") from err
+
+
 def _runtime_from_call(call: ServiceCall) -> MedicationManagerRuntimeData:
     """Resolve runtime data for the service action config entry."""
     _LOGGER.debug("Resolving Medication Manager runtime data for service action")
@@ -189,9 +234,13 @@ def _runtime_from_call(call: ServiceCall) -> MedicationManagerRuntimeData:
         config_entry_id = cast(str, call.data[ATTR_CONFIG_ENTRY_ID])
         entry = call.hass.config_entries.async_get_entry(config_entry_id)
         if entry is None or entry.domain != DOMAIN:
-            raise ServiceValidationError("Medication Manager config entry was not found")
+            raise ServiceValidationError(
+                "Medication Manager config entry was not found"
+            )
         if entry.state is not ConfigEntryState.LOADED:
-            raise ServiceValidationError("Medication Manager config entry is not loaded")
+            raise ServiceValidationError(
+                "Medication Manager config entry is not loaded"
+            )
 
         runtime_data = getattr(entry, "runtime_data", None)
         if runtime_data is None:
@@ -201,7 +250,9 @@ def _runtime_from_call(call: ServiceCall) -> MedicationManagerRuntimeData:
         raise
     except Exception as err:
         _LOGGER.exception("Unable to resolve Medication Manager runtime data")
-        raise HomeAssistantError("Medication Manager runtime resolution failed") from err
+        raise HomeAssistantError(
+            "Medication Manager runtime resolution failed"
+        ) from err
 
 
 def _reminders_from_call(data: Mapping[str, Any]) -> tuple[MedicationReminder, ...]:
@@ -253,6 +304,22 @@ def _medication_response(medication: Medication) -> ServiceResponse:
         return {"medication": medication.as_storage()}
     except Exception as err:
         _LOGGER.exception("Medication Manager service response failed")
+        raise HomeAssistantError("Medication Manager response creation failed") from err
+
+
+def _history_response(
+    entry: HistoryEntry,
+    medication: Medication,
+) -> ServiceResponse:
+    """Build a service action response payload for a history entry."""
+    _LOGGER.debug("Building Medication Manager history response for %s", entry.id)
+    try:
+        return {
+            "history_entry": entry.as_storage(),
+            "medication": medication.as_storage(),
+        }
+    except Exception as err:
+        _LOGGER.exception("Medication Manager history response failed")
         raise HomeAssistantError("Medication Manager response creation failed") from err
 
 
@@ -310,6 +377,58 @@ def _validate_service_time(value: object) -> time:
         raise vol.Invalid("expected HH:MM time") from err
 
 
+def _validate_datetime(value: object) -> datetime:
+    """Validate a service action value as an aware datetime."""
+    _LOGGER.debug("Validating Medication Manager service datetime")
+    try:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            raise vol.Invalid("expected datetime")
+
+        if parsed.tzinfo is None:
+            raise vol.Invalid("expected timezone-aware datetime")
+        return parsed
+    except vol.Invalid:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager service datetime is invalid")
+        raise vol.Invalid("expected timezone-aware datetime") from err
+
+
+def _validate_history_source(value: object) -> str:
+    """Validate a service action history source."""
+    _LOGGER.debug("Validating Medication Manager history source service value")
+    try:
+        if not isinstance(value, str):
+            raise vol.Invalid("expected history source")
+        return HistorySource(value).value
+    except vol.Invalid:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager history source service value is invalid")
+        raise vol.Invalid("expected history source") from err
+
+
+def _validate_take_status(value: object) -> str:
+    """Validate a service action intake status."""
+    _LOGGER.debug("Validating Medication Manager intake status service value")
+    try:
+        if not isinstance(value, str):
+            raise vol.Invalid("expected intake status")
+        status = HistoryStatus(value)
+        if status is HistoryStatus.MISSED:
+            raise vol.Invalid("take_medication cannot create missed history")
+        return status.value
+    except vol.Invalid:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager intake status service value is invalid")
+        raise vol.Invalid("expected intake status") from err
+
+
 _REMINDER_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_TIME): _validate_service_time,
@@ -356,5 +475,18 @@ BIND_TAG_SCHEMA = vol.Schema(
         vol.Required(ATTR_CONFIG_ENTRY_ID): cv.string,
         vol.Required(ATTR_MEDICATION_ID): _validate_uuid_string,
         vol.Required(ATTR_TAG_ID): cv.string,
+    }
+)
+
+TAKE_MEDICATION_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): cv.string,
+        vol.Required(ATTR_MEDICATION_ID): _validate_uuid_string,
+        vol.Optional(ATTR_SCHEDULED_TIME): _validate_datetime,
+        vol.Optional(ATTR_TAKEN_TIME): _validate_datetime,
+        vol.Optional(ATTR_SOURCE, default=HistorySource.API.value): (
+            _validate_history_source
+        ),
+        vol.Optional(ATTR_STATUS): _validate_take_status,
     }
 )

@@ -94,3 +94,38 @@ bind_tag:
       selector:
         text:
 
+take_medication:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: medication_manager
+    medication_id:
+      required: true
+      example: "00000000-0000-4000-8000-000000000000"
+      selector:
+        text:
+    scheduled_time:
+      example: "2026-07-03T08:00:00+03:00"
+      selector:
+        datetime:
+    taken_time:
+      example: "2026-07-03T08:05:00+03:00"
+      selector:
+        datetime:
+    source:
+      default: "api"
+      selector:
+        select:
+          options:
+            - "api"
+            - "button"
+            - "notification"
+            - "nfc"
+    status:
+      selector:
+        select:
+          options:
+            - "taken"
+            - "late"

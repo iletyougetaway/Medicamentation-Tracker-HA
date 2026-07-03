@@ -29,11 +29,10 @@ async def async_setup_frontend(hass: HomeAssistant) -> None:
                 StaticPathConfig(
                     FRONTEND_URL,
                     str(FRONTEND_DIR),
-                    True,
+                    False,
                 )
             ]
         )
     except Exception as err:
         _LOGGER.exception("Medication Manager frontend setup failed")
         raise HomeAssistantError("Medication Manager frontend setup failed") from err
-

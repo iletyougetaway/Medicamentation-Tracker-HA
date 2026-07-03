@@ -31,7 +31,7 @@ No YAML configuration is supported or required.
 Add this JavaScript module as a dashboard resource:
 
 ```text
-/medication_manager/frontend/medication-manager-card.js
+/medication_manager/frontend/medication-manager-card.js?v=0.7.1
 ```
 
 Then add the **Medication Manager** card from the dashboard UI. The card type is

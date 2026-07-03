@@ -16,7 +16,7 @@ Medication Manager настраивается из интерфейса Home Ass
 
 1. Откройте **Настройки** > **Панели управления** > **Ресурсы**.
 2. Добавьте JavaScript module:
-   `/medication_manager/frontend/medication-manager-card.js`.
+   `/medication_manager/frontend/medication-manager-card.js?v=0.7.1`.
 3. Откройте нужный dashboard и добавьте карточку **Medication Manager** из UI.
 
 Карточка показывает список лекарств, статус на сегодня, следующее напоминание,

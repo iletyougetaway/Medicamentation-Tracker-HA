@@ -11,7 +11,7 @@ from uuid import UUID
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.event import async_track_event, async_track_point_in_time
+from homeassistant.helpers.event import async_track_point_in_time
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -75,8 +75,7 @@ class MedicationReminderScheduler:
             if self._unsub_data_update is not None:
                 _LOGGER.debug("Medication Manager reminder scheduler is running")
                 return
-            self._unsub_data_update = async_track_event(
-                self._hass,
+            self._unsub_data_update = self._hass.bus.async_listen(
                 EVENT_DATA_UPDATED,
                 self._async_handle_data_update,
             )

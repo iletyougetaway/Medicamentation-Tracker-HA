@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "medication_manager"
 NAME = "Medication Manager"
-VERSION = "0.7.0"
+VERSION = "0.7.1"
 
 STORAGE_KEY = f"{DOMAIN}.storage"
 STORAGE_VERSION = 1

@@ -11,7 +11,7 @@ from uuid import UUID
 
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.event import async_call_later, async_track_event
+from homeassistant.helpers.event import async_call_later
 
 from .const import (
     DOMAIN,
@@ -136,8 +136,7 @@ class MedicationNotificationEngine:
             if self._unsub_action is not None:
                 _LOGGER.debug("Medication Manager notification engine is running")
                 return
-            self._unsub_action = async_track_event(
-                self._hass,
+            self._unsub_action = self._hass.bus.async_listen(
                 EVENT_MOBILE_APP_NOTIFICATION_ACTION,
                 self._async_handle_action_event,
             )

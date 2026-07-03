@@ -10,6 +10,9 @@ from types import ModuleType
 
 if importlib.util.find_spec("homeassistant") is None:
     homeassistant = ModuleType("homeassistant")
+    components = ModuleType("homeassistant.components")
+    components_tag = ModuleType("homeassistant.components.tag")
+    components_tag_const = ModuleType("homeassistant.components.tag.const")
     config_entries = ModuleType("homeassistant.config_entries")
     core = ModuleType("homeassistant.core")
     data_entry_flow = ModuleType("homeassistant.data_entry_flow")
@@ -26,6 +29,17 @@ if importlib.util.find_spec("homeassistant") is None:
 
     class HomeAssistant:
         """Fallback Home Assistant instance for isolated unit tests."""
+
+        def __init__(self) -> None:
+            """Initialize a fallback Home Assistant instance."""
+            self.bus = EventBus()
+
+    class EventBus:
+        """Fallback Home Assistant event bus for isolated unit tests."""
+
+        def async_listen(self, *_args: object, **_kwargs: object) -> None:
+            """Fallback event listener registration."""
+            return None
 
     class Event:
         """Fallback Home Assistant event for isolated unit tests."""
@@ -58,10 +72,6 @@ if importlib.util.find_spec("homeassistant") is None:
         """Return a callback unchanged for isolated unit tests."""
         return func
 
-    def async_track_event(*_args: object, **_kwargs: object) -> None:
-        """Fallback event tracker for isolated unit tests."""
-        return None
-
     def async_call_later(*_args: object, **_kwargs: object) -> None:
         """Fallback delayed callback tracker for isolated unit tests."""
         return None
@@ -79,10 +89,11 @@ if importlib.util.find_spec("homeassistant") is None:
     config_entries.OptionsFlow = OptionsFlow
     config_entries.ConfigFlowResult = dict[str, object]
     data_entry_flow.AbortFlow = AbortFlow
+    components_tag_const.EVENT_TAG_SCANNED = "tag_scanned"
+    components_tag_const.TAG_ID = "tag_id"
     exceptions.HomeAssistantError = HomeAssistantError
     const.Platform = Platform
     helpers_event.async_call_later = async_call_later
-    helpers_event.async_track_event = async_track_event
     helpers_event.async_track_point_in_time = async_track_point_in_time
     helpers_storage.Store = Store
     util_dt.now = lambda: __import__("datetime").datetime.now().astimezone()
@@ -90,13 +101,19 @@ if importlib.util.find_spec("homeassistant") is None:
     setattr(homeassistant, "const", const)
     setattr(homeassistant, "core", core)
     setattr(homeassistant, "config_entries", config_entries)
+    setattr(homeassistant, "components", components)
     setattr(homeassistant, "data_entry_flow", data_entry_flow)
     setattr(homeassistant, "helpers", helpers)
     setattr(homeassistant, "util", util)
     setattr(helpers, "event", helpers_event)
     setattr(helpers, "storage", helpers_storage)
+    setattr(components, "tag", components_tag)
+    setattr(components_tag, "const", components_tag_const)
     setattr(util, "dt", util_dt)
     sys.modules.setdefault("homeassistant", homeassistant)
+    sys.modules.setdefault("homeassistant.components", components)
+    sys.modules.setdefault("homeassistant.components.tag", components_tag)
+    sys.modules.setdefault("homeassistant.components.tag.const", components_tag_const)
     sys.modules.setdefault("homeassistant.config_entries", config_entries)
     sys.modules.setdefault("homeassistant.core", core)
     sys.modules.setdefault("homeassistant.data_entry_flow", data_entry_flow)

@@ -9,7 +9,6 @@ from typing import Any, cast
 from homeassistant.components.tag.const import EVENT_TAG_SCANNED, TAG_ID
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.event import async_track_event
 
 from .manager import MedicationManager
 from .models import HistorySource
@@ -47,8 +46,7 @@ class MedicationNfcEngine:
             if self._unsub_tag_scanned is not None:
                 _LOGGER.debug("Medication Manager NFC engine is already running")
                 return
-            self._unsub_tag_scanned = async_track_event(
-                self._hass,
+            self._unsub_tag_scanned = self._hass.bus.async_listen(
                 EVENT_TAG_SCANNED,
                 self._async_handle_tag_scanned,
             )

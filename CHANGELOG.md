@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1
+
+- Fix integration startup on Home Assistant versions that no longer expose
+  `async_track_event` from `homeassistant.helpers.event`.
+- Use the Home Assistant event bus directly for NFC scans, notification actions,
+  and scheduler data refresh events.
+
 ## 0.7.0
 
 - Add the automatic medication reminder scheduler.

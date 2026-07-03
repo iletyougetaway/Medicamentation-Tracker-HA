@@ -1,11 +1,3 @@
-import "@material/web/button/filled-button.js";
-import "@material/web/button/outlined-button.js";
-import "@material/web/button/text-button.js";
-import "@material/web/checkbox/checkbox.js";
-import "@material/web/dialog/dialog.js";
-import "@material/web/iconbutton/icon-button.js";
-import "@material/web/textfield/outlined-text-field.js";
-
 import { LitElement, css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
@@ -101,10 +93,14 @@ export class MedicationManagerCard extends LitElement {
       <ha-card>
         <header>
           <h2>${title}</h2>
-          <md-filled-button @click=${() => this._openAddDialog()}>
-            <ha-icon slot="icon" icon="mdi:plus"></ha-icon>
+          <button
+            class="button filled"
+            type="button"
+            @click=${() => this._openAddDialog()}
+          >
+            <ha-icon icon="mdi:plus"></ha-icon>
             ${localize(language, "add")}
-          </md-filled-button>
+          </button>
         </header>
         <section>
           ${this._dashboard?.medications.length
@@ -129,21 +125,23 @@ export class MedicationManagerCard extends LitElement {
             <h3>${item.name}</h3>
             <p>${this._statusLabel(item.today_status, language)}</p>
           </div>
-          <md-icon-button
+          <ha-icon-button
+            .label=${localize(language, "take")}
             aria-label=${localize(language, "take")}
             title=${localize(language, "take")}
             ?disabled=${taking}
             @click=${() => this._takeMedication(item)}
           >
             <ha-icon icon="mdi:check"></ha-icon>
-          </md-icon-button>
-          <md-icon-button
+          </ha-icon-button>
+          <ha-icon-button
+            .label=${localize(language, "edit")}
             aria-label=${localize(language, "edit")}
             title=${localize(language, "edit")}
             @click=${() => this._openEditDialog(item)}
           >
             <ha-icon icon="mdi:pencil"></ha-icon>
-          </md-icon-button>
+          </ha-icon-button>
         </div>
         <dl>
           <div>
@@ -201,54 +199,62 @@ export class MedicationManagerCard extends LitElement {
         : localize(language, "editMedication");
 
     return html`
-      <md-dialog open @closed=${() => this._closeDialog()}>
-        <div slot="headline">${title}</div>
-        <form slot="content" class="dialog-form">
+      <ha-dialog
+        open
+        .headerTitle=${title}
+        .heading=${title}
+        header-title=${title}
+        @closed=${() => this._closeDialog()}
+      >
+        <form class="dialog-form">
           ${dialog.error
             ? html`<div class="dialog-error">${dialog.error}</div>`
             : nothing}
-          <md-outlined-text-field
-            label=${localize(language, "name")}
+          <ha-textfield
+            outlined
+            .label=${localize(language, "name")}
             .value=${dialog.name}
             ?disabled=${dialog.saving}
             required
             @input=${(event: Event) =>
               this._updateDialog({ name: this._stringValue(event) })}
-          ></md-outlined-text-field>
-          <md-outlined-text-field
-            label=${localize(language, "icon")}
+          ></ha-textfield>
+          <ha-textfield
+            outlined
+            .label=${localize(language, "icon")}
             .value=${dialog.icon}
             ?disabled=${dialog.saving}
             @input=${(event: Event) =>
               this._updateDialog({ icon: this._stringValue(event) })}
-          ></md-outlined-text-field>
-          <md-outlined-text-field
-            label=${localize(language, "nfcTag")}
+          ></ha-textfield>
+          <ha-textfield
+            outlined
+            .label=${localize(language, "nfcTag")}
             .value=${dialog.tagId}
             ?disabled=${dialog.saving}
             @input=${(event: Event) =>
               this._updateDialog({ tagId: this._stringValue(event) })}
-          ></md-outlined-text-field>
+          ></ha-textfield>
           <label class="toggle-row">
-            <md-checkbox
-              ?checked=${dialog.medicationEnabled}
+            <ha-checkbox
+              .checked=${dialog.medicationEnabled}
               ?disabled=${dialog.saving}
               @change=${(event: Event) =>
                 this._updateDialog({
                   medicationEnabled: this._checkedValue(event),
                 })}
-            ></md-checkbox>
+            ></ha-checkbox>
             <span>${localize(language, "enableMedication")}</span>
           </label>
           <label class="toggle-row">
-            <md-checkbox
-              ?checked=${dialog.remindersEnabled}
+            <ha-checkbox
+              .checked=${dialog.remindersEnabled}
               ?disabled=${dialog.saving}
               @change=${(event: Event) =>
                 this._updateDialog({
                   remindersEnabled: this._checkedValue(event),
                 })}
-            ></md-checkbox>
+            ></ha-checkbox>
             <span>${localize(language, "enableReminders")}</span>
           </label>
           <fieldset>
@@ -262,27 +268,38 @@ export class MedicationManagerCard extends LitElement {
                     ${localize(language, "noReminders")}
                   </div>
                 `}
-            <md-outlined-button
+            <button
+              class="button outlined"
               type="button"
               ?disabled=${dialog.saving}
               @click=${() => this._addReminder()}
             >
-              <ha-icon slot="icon" icon="mdi:plus"></ha-icon>
+              <ha-icon icon="mdi:plus"></ha-icon>
               ${localize(language, "addReminder")}
-            </md-outlined-button>
+            </button>
           </fieldset>
         </form>
-        <div slot="actions" class="dialog-actions">
+        <div slot="footer" class="dialog-actions">
           ${this._renderDeleteActions(dialog, language)}
           <span class="action-spacer"></span>
-          <md-text-button ?disabled=${dialog.saving} @click=${() => this._closeDialog()}>
+          <button
+            class="button text"
+            type="button"
+            ?disabled=${dialog.saving}
+            @click=${() => this._closeDialog()}
+          >
             ${localize(language, "cancel")}
-          </md-text-button>
-          <md-filled-button ?disabled=${dialog.saving} @click=${() => this._saveDialog()}>
+          </button>
+          <button
+            class="button filled"
+            type="button"
+            ?disabled=${dialog.saving}
+            @click=${() => this._saveDialog()}
+          >
             ${localize(language, "save")}
-          </md-filled-button>
+          </button>
         </div>
-      </md-dialog>
+      </ha-dialog>
     `;
   }
 
@@ -296,31 +313,33 @@ export class MedicationManagerCard extends LitElement {
 
     return html`
       <div class="reminder-row">
-        <md-outlined-text-field
-          type="time"
-          label=${localize(language, "reminderTime")}
+        <ha-textfield
+          outlined
+          .type=${"time"}
+          .label=${localize(language, "reminderTime")}
           .value=${reminder.time}
           ?disabled=${disabled}
           @input=${(event: Event) =>
             this._updateReminderTime(index, this._stringValue(event))}
-        ></md-outlined-text-field>
+        ></ha-textfield>
         <label class="inline-check">
-          <md-checkbox
-            ?checked=${reminder.enabled}
+          <ha-checkbox
+            .checked=${reminder.enabled}
             ?disabled=${disabled}
             @change=${(event: Event) =>
               this._updateReminderEnabled(index, this._checkedValue(event))}
-          ></md-checkbox>
+          ></ha-checkbox>
           <span>${localize(language, "enableReminder")}</span>
         </label>
-        <md-icon-button
+        <ha-icon-button
+          .label=${localize(language, "removeReminder")}
           aria-label=${localize(language, "removeReminder")}
           title=${localize(language, "removeReminder")}
           ?disabled=${dialog?.saving}
           @click=${() => this._removeReminder(index)}
         >
           <ha-icon icon="mdi:trash-can-outline"></ha-icon>
-        </md-icon-button>
+        </ha-icon-button>
       </div>
     `;
   }
@@ -333,32 +352,36 @@ export class MedicationManagerCard extends LitElement {
 
     if (!dialog.confirmDelete) {
       return html`
-        <md-outlined-button
-          class="danger"
+        <button
+          class="button outlined danger"
+          type="button"
           ?disabled=${dialog.saving}
           @click=${() => this._updateDialog({ confirmDelete: true })}
         >
-          <ha-icon slot="icon" icon="mdi:trash-can-outline"></ha-icon>
+          <ha-icon icon="mdi:trash-can-outline"></ha-icon>
           ${localize(language, "delete")}
-        </md-outlined-button>
+        </button>
       `;
     }
 
     return html`
       <span class="delete-confirm">${localize(language, "deleteConfirm")}</span>
-      <md-text-button
+      <button
+        class="button text"
+        type="button"
         ?disabled=${dialog.saving}
         @click=${() => this._updateDialog({ confirmDelete: false })}
       >
         ${localize(language, "cancel")}
-      </md-text-button>
-      <md-outlined-button
-        class="danger"
+      </button>
+      <button
+        class="button outlined danger"
+        type="button"
         ?disabled=${dialog.saving}
         @click=${() => this._deleteMedication()}
       >
         ${localize(language, "deleteMedication")}
-      </md-outlined-button>
+      </button>
     `;
   }
 
@@ -718,6 +741,12 @@ export class MedicationManagerCard extends LitElement {
       width: 32px;
     }
 
+    .identity ha-icon-button,
+    .reminder-row ha-icon-button {
+      --ha-icon-button-size: 40px;
+      color: var(--primary-text-color);
+    }
+
     h3 {
       font-size: 16px;
       font-weight: 600;
@@ -794,11 +823,88 @@ export class MedicationManagerCard extends LitElement {
       width: 12px;
     }
 
-    md-dialog {
-      --md-dialog-container-color: var(--card-background-color);
-      --md-dialog-headline-color: var(--primary-text-color);
-      --md-dialog-supporting-text-color: var(--primary-text-color);
-      min-width: min(560px, calc(100vw - 32px));
+    .button {
+      align-items: center;
+      appearance: none;
+      border: 0;
+      border-radius: 9999px;
+      box-sizing: border-box;
+      cursor: pointer;
+      display: inline-flex;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      gap: 8px;
+      justify-content: center;
+      letter-spacing: 0;
+      line-height: 20px;
+      min-height: 40px;
+      min-width: 64px;
+      outline: none;
+      padding: 10px 24px;
+      position: relative;
+      text-decoration: none;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .button:focus-visible {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
+    .button:disabled {
+      cursor: default;
+      opacity: 0.38;
+      pointer-events: none;
+    }
+
+    .button ha-icon {
+      height: 18px;
+      width: 18px;
+    }
+
+    .button.filled {
+      background: var(--primary-color);
+      color: var(--text-primary-color, white);
+    }
+
+    .button.outlined,
+    .button.text {
+      background: transparent;
+      color: var(--primary-color);
+    }
+
+    .button.outlined {
+      border: 1px solid var(--divider-color);
+    }
+
+    .button:is(.outlined, .text):hover:not(:disabled) {
+      background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    }
+
+    .button.filled:hover:not(:disabled) {
+      filter: brightness(1.04);
+    }
+
+    .button.outlined.danger,
+    .button.text.danger {
+      color: var(--error-color);
+    }
+
+    .button.outlined.danger {
+      border-color: var(--error-color);
+    }
+
+    .button.outlined.danger:hover:not(:disabled),
+    .button.text.danger:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--error-color) 8%, transparent);
+    }
+
+    ha-dialog {
+      --ha-dialog-header-title-color: var(--primary-text-color);
+      --ha-dialog-surface-background: var(--card-background-color);
+      --ha-dialog-width-md: 560px;
     }
 
     .dialog-form {
@@ -866,12 +972,6 @@ export class MedicationManagerCard extends LitElement {
 
     .action-spacer {
       flex: 1 1 auto;
-    }
-
-    .danger {
-      --md-outlined-button-label-text-color: var(--error-color);
-      --md-outlined-button-outline-color: var(--error-color);
-      --md-outlined-button-icon-color: var(--error-color);
     }
 
     .delete-confirm {

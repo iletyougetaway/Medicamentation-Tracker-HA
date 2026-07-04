@@ -15,7 +15,7 @@
 ## Карточка Lovelace
 
 После установки через HACS интеграция сама добавляет ресурс карточки:
-`/medication_manager/frontend/medication-manager-card.js?v=0.7.3`.
+`/medication_manager/frontend/medication-manager-card.js?v=0.7.4`.
 
 Если панели управления работают в YAML mode, добавьте этот JavaScript module в
 ресурсы вручную.

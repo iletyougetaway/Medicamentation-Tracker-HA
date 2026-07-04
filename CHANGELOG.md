@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.4
+
+- Slightly increase the medication icon size in weekly taken intake markers.
+
 ## 0.7.3
 
 - Keep weekly daily intake markers centered inside each day cell.

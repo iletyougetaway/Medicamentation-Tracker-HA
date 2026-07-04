@@ -1291,7 +1291,7 @@ _.styles = he`
       gap: 2px;
       justify-content: center;
       margin-inline: auto;
-      max-width: 22px;
+      max-width: 26px;
       min-height: 12px;
       min-width: 0;
       overflow: hidden;
@@ -1332,17 +1332,17 @@ _.styles = he`
     .dose.taken {
       background: transparent;
       color: var(--success-color);
-      flex-basis: 9px;
-      height: 9px;
-      width: 9px;
+      flex-basis: 11px;
+      height: 11px;
+      width: 11px;
     }
 
     .dose-icon {
-      --mdc-icon-size: 9px;
+      --mdc-icon-size: 11px;
       display: block;
-      height: 9px;
-      line-height: 9px;
-      width: 9px;
+      height: 11px;
+      line-height: 11px;
+      width: 11px;
     }
 
     .dose.late {

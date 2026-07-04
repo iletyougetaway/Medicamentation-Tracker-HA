@@ -35,7 +35,7 @@ const ce = (t) => new ne(typeof t == "string" ? t : t + "", void 0, B), he = (t,
   for (const r of e.cssRules) i += r.cssText;
   return ce(i);
 })(t) : t;
-const { is: ue, defineProperty: me, getOwnPropertyDescriptor: _e, getOwnPropertyNames: ge, getOwnPropertySymbols: fe, getPrototypeOf: be } = Object, H = globalThis, Y = H.trustedTypes, $e = Y ? Y.emptyScript : "", ve = H.reactiveElementPolyfillSupport, S = (t, e) => t, N = { toAttribute(t, e) {
+const { is: ue, defineProperty: me, getOwnPropertyDescriptor: _e, getOwnPropertyNames: ge, getOwnPropertySymbols: fe, getPrototypeOf: be } = Object, z = globalThis, Y = z.trustedTypes, $e = Y ? Y.emptyScript : "", ve = z.reactiveElementPolyfillSupport, S = (t, e) => t, N = { toAttribute(t, e) {
   switch (e) {
     case Boolean:
       t = t ? $e : null;
@@ -64,7 +64,7 @@ const { is: ue, defineProperty: me, getOwnPropertyDescriptor: _e, getOwnProperty
   }
   return i;
 } }, V = (t, e) => !ue(t, e), G = { attribute: !0, type: String, converter: N, reflect: !1, useDefault: !1, hasChanged: V };
-Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), H.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
+Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), z.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
 let w = class extends HTMLElement {
   static addInitializer(e) {
     this._$Ei(), (this.l ??= []).push(e);
@@ -246,7 +246,7 @@ let w = class extends HTMLElement {
   firstUpdated(e) {
   }
 };
-w.elementStyles = [], w.shadowRootOptions = { mode: "open" }, w[S("elementProperties")] = /* @__PURE__ */ new Map(), w[S("finalized")] = /* @__PURE__ */ new Map(), ve?.({ ReactiveElement: w }), (H.reactiveElementVersions ??= []).push("2.1.2");
+w.elementStyles = [], w.shadowRootOptions = { mode: "open" }, w[S("elementProperties")] = /* @__PURE__ */ new Map(), w[S("finalized")] = /* @__PURE__ */ new Map(), ve?.({ ReactiveElement: w }), (z.reactiveElementVersions ??= []).push("2.1.2");
 const q = globalThis, Q = (t) => t, I = q.trustedTypes, X = I ? I.createPolicy("lit-html", { createHTML: (t) => t }) : void 0, oe = "$lit$", b = `lit$${Math.random().toFixed(9).slice(2)}$`, ae = "?" + b, ye = `<${ae}>`, x = document, D = () => x.createComment(""), M = (t) => t === null || typeof t != "object" && typeof t != "function", W = Array.isArray, xe = (t) => W(t) || typeof t?.[Symbol.iterator] == "function", j = `[ 	
 \f\r]`, E = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ee = /-->/g, te = />/g, v = RegExp(`>|${j}(?:([^\\s"'>=/]+)(${j}*=${j}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), ie = /'/g, re = /"/g, de = /^(?:script|style|textarea|title)$/i, we = (t) => (e, ...i) => ({ _$litType$: t, strings: e, values: i }), m = we(1), A = /* @__PURE__ */ Symbol.for("lit-noChange"), c = /* @__PURE__ */ Symbol.for("lit-nothing"), se = /* @__PURE__ */ new WeakMap(), y = x.createTreeWalker(x, 129);
@@ -280,7 +280,7 @@ class R {
       if (s.nodeType === 1) {
         if (s.hasAttributes()) for (const h of s.getAttributeNames()) if (h.endsWith(oe)) {
           const g = u[o++], f = s.getAttribute(h).split(b), O = /([.?@])?(.*)/.exec(g);
-          d.push({ type: 1, index: n, name: O[2], strings: f, ctor: O[1] === "." ? Ee : O[1] === "?" ? Se : O[1] === "@" ? Ce : z }), s.removeAttribute(h);
+          d.push({ type: 1, index: n, name: O[2], strings: f, ctor: O[1] === "." ? Ee : O[1] === "?" ? Se : O[1] === "@" ? Ce : H }), s.removeAttribute(h);
         } else h.startsWith(b) && (d.push({ type: 6, index: n }), s.removeAttribute(h));
         if (de.test(s.tagName)) {
           const h = s.textContent.split(b), g = h.length - 1;
@@ -396,7 +396,7 @@ class T {
     this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
   }
 }
-class z {
+class H {
   get tagName() {
     return this.element.tagName;
   }
@@ -421,7 +421,7 @@ class z {
     e === c ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
   }
 }
-class Ee extends z {
+class Ee extends H {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -429,7 +429,7 @@ class Ee extends z {
     this.element[this.name] = e === c ? void 0 : e;
   }
 }
-class Se extends z {
+class Se extends H {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -437,7 +437,7 @@ class Se extends z {
     this.element.toggleAttribute(this.name, !!e && e !== c);
   }
 }
-class Ce extends z {
+class Ce extends H {
   constructor(e, i, r, s, n) {
     super(e, i, r, s, n), this.type = 5;
   }
@@ -572,8 +572,8 @@ const Ne = {
 function a(t, e) {
   return Ne[e];
 }
-var Ie = Object.defineProperty, He = Object.getOwnPropertyDescriptor, $ = (t, e, i, r) => {
-  for (var s = r > 1 ? void 0 : r ? He(e, i) : e, n = t.length - 1, o; n >= 0; n--)
+var Ie = Object.defineProperty, ze = Object.getOwnPropertyDescriptor, $ = (t, e, i, r) => {
+  for (var s = r > 1 ? void 0 : r ? ze(e, i) : e, n = t.length - 1, o; n >= 0; n--)
     (o = t[n]) && (s = (r ? o(e, i, s) : o(s)) || s);
   return r && s && Ie(e, i, s), s;
 };
@@ -680,10 +680,7 @@ let _ = class extends C {
         title=${this._weeklyTitle(e, s, i)}
       >
         <span class="week-date">${this._formatDate(e.date)}</span>
-        <span
-          class="week-doses"
-          style=${`--dose-columns: ${this._weeklyDoseColumns(t)};`}
-        >
+        <span class="week-doses">
           ${this._weeklyContent(t, e)}
         </span>
       </span>
@@ -695,9 +692,11 @@ let _ = class extends C {
       r.push(...Array.from({ length: i }, () => "future"));
     else
       for (r.push(...Array.from({ length: e.taken_count }, () => "taken")), r.push(...Array.from({ length: e.late_count }, () => "late")), r.push(...Array.from({ length: e.missed_count }, () => "missed")); r.length < i; ) r.push("empty");
-    return r.map(
-      (s) => m`<span class=${`dose ${s}`}></span>`
-    );
+    return r.map((s) => s === "taken" ? m`
+          <span class="dose taken">
+            <ha-icon class="dose-icon" .icon=${t.icon}></ha-icon>
+          </span>
+        ` : m`<span class=${`dose ${s}`}></span>`);
   }
   _renderMedicationDialog(t) {
     const e = this._dialog;
@@ -1110,9 +1109,6 @@ let _ = class extends C {
     );
     return Math.max(1, i || e, r);
   }
-  _weeklyDoseColumns(t) {
-    return this._dailyDoseCount(t) > 3 ? 2 : this._dailyDoseCount(t);
-  }
   _historyCount(t) {
     return t.taken_count + t.late_count + t.missed_count;
   }
@@ -1288,19 +1284,30 @@ _.styles = he`
     }
 
     .week-doses {
-      display: grid;
-      gap: 3px;
-      grid-template-columns: repeat(var(--dose-columns), 8px);
+      align-content: center;
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
       justify-content: center;
-      min-height: 8px;
+      margin-inline: auto;
+      max-width: 22px;
+      min-height: 12px;
+      min-width: 0;
+      overflow: hidden;
+      width: 100%;
     }
 
     .dose {
+      align-items: center;
       border-radius: 50%;
       box-sizing: border-box;
-      display: block;
-      height: 8px;
-      width: 8px;
+      display: inline-flex;
+      flex: 0 0 5px;
+      height: 5px;
+      justify-content: center;
+      min-width: 0;
+      width: 5px;
     }
 
     .week-day.taken {
@@ -1323,7 +1330,19 @@ _.styles = he`
     }
 
     .dose.taken {
-      background: var(--success-color);
+      background: transparent;
+      color: var(--success-color);
+      flex-basis: 9px;
+      height: 9px;
+      width: 9px;
+    }
+
+    .dose-icon {
+      --mdc-icon-size: 9px;
+      display: block;
+      height: 9px;
+      line-height: 9px;
+      width: 9px;
     }
 
     .dose.late {

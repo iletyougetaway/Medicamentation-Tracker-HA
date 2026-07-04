@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.3
+
+- Keep weekly daily intake markers centered inside each day cell.
+- Use compact medication icons for taken intakes and smaller markers for other
+  intake states.
+
+## 0.7.2
+
+- Update the Lovelace card resource version so Home Assistant reloads the
+  latest frontend bundle.
+- Show dates as `dd.mm.yyyy` and omit seconds from displayed date-time values.
+- Replace the dashboard label "Следующее" with "Напоминание".
+- Group weekly history by day and show multiple daily intakes inside each day.
+- Add a daily intake count field for configuring reminder rows.
+- Hide medication creation from the normal card view and show it only while the
+  dashboard is being edited.
+
 ## 0.7.1
 
 - Fix integration startup on Home Assistant versions that no longer expose

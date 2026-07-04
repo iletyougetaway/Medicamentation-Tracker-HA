@@ -1,6 +1,6 @@
 [project]
 name = "medication-manager"
-version = "0.7.1"
+version = "0.7.3"
 description = "Интеграция Home Assistant для учёта лекарств"
 readme = "README.md"
 requires-python = ">=3.13"

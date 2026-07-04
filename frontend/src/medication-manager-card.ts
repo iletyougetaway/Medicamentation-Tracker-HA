@@ -185,10 +185,7 @@ export class MedicationManagerCard extends LitElement {
         title=${this._weeklyTitle(day, statusLabel, language)}
       >
         <span class="week-date">${this._formatDate(day.date)}</span>
-        <span
-          class="week-doses"
-          style=${`--dose-columns: ${this._weeklyDoseColumns(item)};`}
-        >
+        <span class="week-doses">
           ${this._weeklyContent(item, day)}
         </span>
       </span>
@@ -208,9 +205,16 @@ export class MedicationManagerCard extends LitElement {
       while (statuses.length < doseCount) statuses.push("empty");
     }
 
-    return statuses.map(
-      (status) => html`<span class=${`dose ${status}`}></span>`,
-    );
+    return statuses.map((status) => {
+      if (status === "taken") {
+        return html`
+          <span class="dose taken">
+            <ha-icon class="dose-icon" .icon=${item.icon}></ha-icon>
+          </span>
+        `;
+      }
+      return html`<span class=${`dose ${status}`}></span>`;
+    });
   }
 
   private _renderMedicationDialog(language: string) {
@@ -766,10 +770,6 @@ export class MedicationManagerCard extends LitElement {
     return Math.max(1, enabled || configured, historicalMax);
   }
 
-  private _weeklyDoseColumns(item: MedicationDashboardItem): number {
-    return this._dailyDoseCount(item) > 3 ? 2 : this._dailyDoseCount(item);
-  }
-
   private _historyCount(day: WeeklyDay): number {
     return day.taken_count + day.late_count + day.missed_count;
   }
@@ -967,19 +967,30 @@ export class MedicationManagerCard extends LitElement {
     }
 
     .week-doses {
-      display: grid;
-      gap: 3px;
-      grid-template-columns: repeat(var(--dose-columns), 8px);
+      align-content: center;
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
       justify-content: center;
-      min-height: 8px;
+      margin-inline: auto;
+      max-width: 22px;
+      min-height: 12px;
+      min-width: 0;
+      overflow: hidden;
+      width: 100%;
     }
 
     .dose {
+      align-items: center;
       border-radius: 50%;
       box-sizing: border-box;
-      display: block;
-      height: 8px;
-      width: 8px;
+      display: inline-flex;
+      flex: 0 0 5px;
+      height: 5px;
+      justify-content: center;
+      min-width: 0;
+      width: 5px;
     }
 
     .week-day.taken {
@@ -1002,7 +1013,19 @@ export class MedicationManagerCard extends LitElement {
     }
 
     .dose.taken {
-      background: var(--success-color);
+      background: transparent;
+      color: var(--success-color);
+      flex-basis: 9px;
+      height: 9px;
+      width: 9px;
+    }
+
+    .dose-icon {
+      --mdc-icon-size: 9px;
+      display: block;
+      height: 9px;
+      line-height: 9px;
+      width: 9px;
     }
 
     .dose.late {

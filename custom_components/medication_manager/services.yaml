@@ -19,6 +19,10 @@ add_medication:
       example: "04a1b2c3d4e5"
       selector:
         text:
+    course_end_date:
+      example: "2026-07-31"
+      selector:
+        date:
     enabled:
       default: true
       selector:
@@ -53,6 +57,14 @@ update_medication:
       selector:
         text:
     clear_tag:
+      default: false
+      selector:
+        boolean:
+    course_end_date:
+      example: "2026-07-31"
+      selector:
+        date:
+    clear_course_end_date:
       default: false
       selector:
         boolean:

@@ -112,6 +112,33 @@ def test_history_range_filter_orders_newest_first() -> None:
         raise
 
 
+def test_monthly_summary_returns_current_month_days() -> None:
+    """Verify monthly history returns one summary per calendar month day."""
+    _LOGGER.debug("Testing Medication Manager monthly history summaries")
+    try:
+        medication_id = uuid4()
+        summary = MedicationHistory.monthly_summary(
+            (
+                _history_entry(
+                    medication_id,
+                    datetime(2026, 7, 5, 8, 0, tzinfo=timezone.utc),
+                    HistoryStatus.TAKEN,
+                ),
+            ),
+            medication_id=medication_id,
+            month_start=date(2026, 7, 1),
+            today=date(2026, 7, 8),
+        )
+
+        assert len(summary) == 31
+        assert summary[4].day == date(2026, 7, 5)
+        assert summary[4].taken_count == 1
+        assert summary[8].is_future is True
+    except Exception:
+        _LOGGER.exception("Monthly history summary test failed")
+        raise
+
+
 def _history_entry(
     medication_id: UUID,
     taken_time: datetime,

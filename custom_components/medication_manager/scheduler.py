@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 import logging
 from typing import Awaitable, Callable, cast
 from uuid import UUID
@@ -142,7 +142,7 @@ class MedicationReminderScheduler:
         """Schedule every enabled reminder for one medication."""
         _LOGGER.debug("Scheduling reminders for Medication Manager %s", medication.id)
         try:
-            if not medication.enabled:
+            if not _medication_active_on(medication, now.date()):
                 return
             for reminder in medication.schedule:
                 if reminder.enabled:
@@ -165,6 +165,9 @@ class MedicationReminderScheduler:
         _LOGGER.debug("Scheduling Medication Manager reminder for %s", medication.id)
         try:
             due_at = _next_due_at(reminder.time, now)
+            if not _medication_active_on(medication, due_at.date()):
+                _LOGGER.debug("Medication Manager course ended before next reminder")
+                return
             scheduled = ScheduledMedicationReminder(
                 key=_reminder_key(medication.id, reminder.time),
                 medication_id=medication.id,
@@ -208,7 +211,11 @@ class MedicationReminderScheduler:
             medication = await self._manager.async_get_medication(
                 scheduled.medication_id
             )
-            if not _reminder_still_enabled(medication, scheduled.reminder_time):
+            if not _reminder_still_enabled(
+                medication,
+                scheduled.reminder_time,
+                scheduled.due_at,
+            ):
                 _LOGGER.debug("Medication Manager reminder is no longer enabled")
                 return
 
@@ -289,11 +296,12 @@ def _next_due_at(reminder_time: time, now: datetime) -> datetime:
 def _reminder_still_enabled(
     medication: Medication,
     reminder_time: time,
+    due_at: datetime,
 ) -> bool:
     """Return whether a reminder still exists and is enabled."""
     _LOGGER.debug("Checking whether Medication Manager reminder is enabled")
     try:
-        return medication.enabled and any(
+        return _medication_active_on(medication, due_at.date()) and any(
             reminder.time == reminder_time and reminder.enabled
             for reminder in medication.schedule
         )
@@ -301,6 +309,19 @@ def _reminder_still_enabled(
         _LOGGER.exception("Medication Manager reminder enabled check failed")
         raise MedicationSchedulerError(
             "Не удалось проверить, включено ли напоминание"
+        ) from err
+
+
+def _medication_active_on(medication: Medication, day: date) -> bool:
+    """Return whether a medication should have reminders on a calendar day."""
+    try:
+        return medication.enabled and (
+            medication.course_end_date is None or day <= medication.course_end_date
+        )
+    except Exception as err:
+        _LOGGER.exception("Medication Manager course active check failed")
+        raise MedicationSchedulerError(
+            "Не удалось проверить срок курса лекарства"
         ) from err
 
 

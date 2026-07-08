@@ -160,6 +160,53 @@ class MedicationHistory:
             _LOGGER.exception("Medication Manager weekly history failed")
             raise MedicationHistoryError("Weekly history failed") from err
 
+    @staticmethod
+    def monthly_summary(
+        entries: Iterable[HistoryEntry],
+        *,
+        medication_id: UUID,
+        month_start: date,
+        today: date,
+    ) -> tuple[MedicationDayHistory, ...]:
+        """Return daily summaries for a medication month."""
+        _LOGGER.debug(
+            "Building Medication Manager monthly history for medication %s",
+            medication_id,
+        )
+        try:
+            next_month = (
+                month_start.replace(year=month_start.year + 1, month=1)
+                if month_start.month == 12
+                else month_start.replace(month=month_start.month + 1)
+            )
+            day_count = (next_month - month_start).days
+            month_days = tuple(
+                month_start + timedelta(days=offset) for offset in range(day_count)
+            )
+            entries_by_day: dict[date, list[HistoryEntry]] = defaultdict(list)
+
+            for entry in entries:
+                if entry.medication_id != medication_id:
+                    continue
+                entry_day = entry.taken_time.date()
+                if month_start <= entry_day < next_month:
+                    entries_by_day[entry_day].append(entry)
+
+            return tuple(
+                _summarize_day(
+                    medication_id=medication_id,
+                    day=day,
+                    entries=entries_by_day.get(day, []),
+                    today=today,
+                )
+                for day in month_days
+            )
+        except HomeAssistantError:
+            raise
+        except Exception as err:
+            _LOGGER.exception("Medication Manager monthly history failed")
+            raise MedicationHistoryError("Monthly history failed") from err
+
 
 def _summarize_day(
     *,

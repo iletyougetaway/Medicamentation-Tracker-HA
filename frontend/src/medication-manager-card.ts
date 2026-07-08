@@ -14,6 +14,8 @@ type DialogMode = "add" | "edit";
 
 interface MedicationDialogState {
   confirmDelete: boolean;
+  courseAlways: boolean;
+  courseEndDate: string;
   error: string | undefined;
   icon: string;
   medicationEnabled: boolean;
@@ -49,6 +51,9 @@ export class MedicationManagerCard extends LitElement {
 
   @state()
   private _busyMedicationId: string | undefined;
+
+  @state()
+  private _historyMedicationId: string | undefined;
 
   private _unsubscribe: (() => void) | undefined;
 
@@ -118,6 +123,7 @@ export class MedicationManagerCard extends LitElement {
         </section>
       </ha-card>
       ${this._renderMedicationDialog(language)}
+      ${this._renderMonthlyHistoryDialog(language)}
     `;
   }
 
@@ -130,7 +136,7 @@ export class MedicationManagerCard extends LitElement {
           <ha-icon .icon=${item.icon}></ha-icon>
           <div>
             <h3>${item.name}</h3>
-            <p>${this._statusLabel(item.today_status, language)}</p>
+            <p>${this._medicationStatusLabel(item, language)}</p>
           </div>
           <ha-icon-button
             .label=${localize(language, "take")}
@@ -140,6 +146,14 @@ export class MedicationManagerCard extends LitElement {
             @click=${() => this._takeMedication(item)}
           >
             <ha-icon icon="mdi:check"></ha-icon>
+          </ha-icon-button>
+          <ha-icon-button
+            .label=${localize(language, "monthlyHistory")}
+            aria-label=${localize(language, "monthlyHistory")}
+            title=${localize(language, "monthlyHistory")}
+            @click=${() => this._openMonthlyHistory(item)}
+          >
+            <ha-icon icon="mdi:calendar-month"></ha-icon>
           </ha-icon-button>
           <ha-icon-button
             .label=${localize(language, "edit")}
@@ -178,6 +192,7 @@ export class MedicationManagerCard extends LitElement {
     const statusLabel = day.status
       ? this._statusLabel(day.status, language)
       : localize(language, "none");
+    const doseCount = this._dayDoseCount(item, day);
 
     return html`
       <span
@@ -185,15 +200,18 @@ export class MedicationManagerCard extends LitElement {
         title=${this._weeklyTitle(day, statusLabel, language)}
       >
         <span class="week-date">${this._formatDate(day.date)}</span>
-        <span class="week-doses">
-          ${this._weeklyContent(item, day)}
+        <span class="week-doses" style=${this._doseGridStyle(doseCount)}>
+          ${this._weeklyContent(item, day, doseCount)}
         </span>
       </span>
     `;
   }
 
-  private _weeklyContent(item: MedicationDashboardItem, day: WeeklyDay) {
-    const doseCount = Math.max(this._dailyDoseCount(item), this._historyCount(day));
+  private _weeklyContent(
+    item: MedicationDashboardItem,
+    day: WeeklyDay,
+    doseCount: number,
+  ) {
     const statuses: string[] = [];
 
     if (day.is_future) {
@@ -257,6 +275,25 @@ export class MedicationManagerCard extends LitElement {
               label: localize(language, "nfcTag"),
               value: dialog.tagId,
               onInput: (value) => this._updateDialog({ tagId: value }),
+            })}
+            <label class="toggle-row">
+              <ha-checkbox
+                .checked=${dialog.courseAlways}
+                ?disabled=${dialog.saving}
+                @change=${(event: Event) =>
+                  this._updateDialog({
+                    courseAlways: this._checkedValue(event),
+                  })}
+              ></ha-checkbox>
+              <span>${localize(language, "courseAlways")}</span>
+            </label>
+            ${this._renderTextField({
+              disabled: dialog.saving || dialog.courseAlways,
+              label: localize(language, "courseEndDate"),
+              required: !dialog.courseAlways,
+              type: "date",
+              value: dialog.courseEndDate,
+              onInput: (value) => this._updateDialog({ courseEndDate: value }),
             })}
             <label class="toggle-row">
               <ha-checkbox
@@ -327,6 +364,77 @@ export class MedicationManagerCard extends LitElement {
           </div>
         </div>
       </ha-dialog>
+    `;
+  }
+
+  private _renderMonthlyHistoryDialog(language: string) {
+    const item = this._historyMedication();
+    if (!item) return nothing;
+
+    const title = `${localize(language, "monthlyHistory")}: ${item.name}`;
+    const paddingDays = this._monthLeadingBlankCount(item.monthly_history);
+
+    return html`
+      <ha-dialog
+        open
+        .headerTitle=${title}
+        .heading=${title}
+        header-title=${title}
+        @closed=${() => this._closeMonthlyHistory()}
+      >
+        <div class="dialog-content history-dialog">
+          <div class="month-title">
+            ${this._monthLabel(item.monthly_history[0]?.date, language)}
+          </div>
+          <div class="month-grid">
+            ${this._weekdayLabels().map(
+              (label) => html`<span class="month-weekday">${label}</span>`,
+            )}
+            ${Array.from({ length: paddingDays }, () =>
+              html`<span class="month-spacer"></span>`,
+            )}
+            ${item.monthly_history.map((day) =>
+              this._renderMonthlyDay(item, day, language),
+            )}
+          </div>
+          <div class="dialog-actions">
+            <button
+              class="button filled"
+              type="button"
+              @click=${() => this._closeMonthlyHistory()}
+            >
+              ${localize(language, "close")}
+            </button>
+          </div>
+        </div>
+      </ha-dialog>
+    `;
+  }
+
+  private _renderMonthlyDay(
+    item: MedicationDashboardItem,
+    day: WeeklyDay,
+    language: string,
+  ) {
+    const statusClass = day.is_future ? "future" : day.status ?? "none";
+    const statusLabel = day.status
+      ? this._statusLabel(day.status, language)
+      : localize(language, "none");
+    const doseCount = this._dayDoseCount(item, day);
+
+    return html`
+      <span
+        class=${`month-day ${statusClass}`}
+        title=${this._weeklyTitle(day, statusLabel, language)}
+      >
+        <span class="month-date">${this._dayNumber(day.date)}</span>
+        <span
+          class="week-doses month-doses"
+          style=${this._doseGridStyle(doseCount)}
+        >
+          ${this._weeklyContent(item, day, doseCount)}
+        </span>
+      </span>
     `;
   }
 
@@ -418,6 +526,14 @@ export class MedicationManagerCard extends LitElement {
     if (status === "late") return localize(language, "late");
     if (status === "missed") return localize(language, "missed");
     return localize(language, "today");
+  }
+
+  private _medicationStatusLabel(
+    item: MedicationDashboardItem,
+    language: string,
+  ): string {
+    if (this._courseEnded(item)) return localize(language, "courseEnded");
+    return this._statusLabel(item.today_status, language);
   }
 
   private get _language(): string {
@@ -518,6 +634,8 @@ export class MedicationManagerCard extends LitElement {
   private _openAddDialog(): void {
     this._dialog = {
       confirmDelete: false,
+      courseAlways: true,
+      courseEndDate: "",
       error: undefined,
       icon: "mdi:pill",
       medicationEnabled: true,
@@ -535,6 +653,8 @@ export class MedicationManagerCard extends LitElement {
   private _openEditDialog(item: MedicationDashboardItem): void {
     this._dialog = {
       confirmDelete: false,
+      courseAlways: item.course_end_date === null,
+      courseEndDate: item.course_end_date ?? "",
       error: undefined,
       icon: item.icon,
       medicationEnabled: item.enabled,
@@ -688,6 +808,11 @@ export class MedicationManagerCard extends LitElement {
     const reminders = this._validatedReminders(language);
     if (!reminders) return undefined;
 
+    if (!dialog.courseAlways && !this._validDateInput(dialog.courseEndDate)) {
+      this._updateDialog({ error: localize(language, "invalidCourseEndDate") });
+      return undefined;
+    }
+
     const tagId = dialog.tagId.trim();
     const payload: Record<string, unknown> = {
       enabled: dialog.medicationEnabled,
@@ -700,6 +825,12 @@ export class MedicationManagerCard extends LitElement {
       payload.tag_id = tagId;
     } else if (dialog.mode === "edit" && dialog.originalTagId) {
       payload.clear_tag = true;
+    }
+
+    if (dialog.courseAlways) {
+      if (dialog.mode === "edit") payload.clear_course_end_date = true;
+    } else {
+      payload.course_end_date = dialog.courseEndDate;
     }
 
     return payload;
@@ -734,6 +865,10 @@ export class MedicationManagerCard extends LitElement {
     return match !== null;
   }
 
+  private _validDateInput(value: string): boolean {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value);
+  }
+
   private _nextAvailableReminderTime(
     reminders: Reminder[],
     targetCount = reminders.length + 1,
@@ -766,8 +901,21 @@ export class MedicationManagerCard extends LitElement {
     const historicalMax = Math.max(
       0,
       ...item.weekly_history.map((day) => this._historyCount(day)),
+      ...item.monthly_history.map((day) => this._historyCount(day)),
     );
     return Math.max(1, enabled || configured, historicalMax);
+  }
+
+  private _dayDoseCount(item: MedicationDashboardItem, day: WeeklyDay): number {
+    return Math.max(this._dailyDoseCount(item), this._historyCount(day));
+  }
+
+  private _doseGridStyle(doseCount: number): string {
+    const columns = Math.min(2, Math.max(1, doseCount));
+    const iconSize = 15;
+    const gap = 2;
+    const width = columns * iconSize + (columns - 1) * gap;
+    return `--dose-columns:${columns};--dose-icon-size:${iconSize}px;--dose-grid-width:${width}px;`;
   }
 
   private _historyCount(day: WeeklyDay): number {
@@ -824,6 +972,65 @@ export class MedicationManagerCard extends LitElement {
     const [, year, month, day] = match;
     if (!year || !month || !day) return undefined;
     return { day, month, year };
+  }
+
+  private _courseEnded(item: MedicationDashboardItem): boolean {
+    if (!item.course_end_date) return false;
+    return item.course_end_date < this._todayIsoDate();
+  }
+
+  private _todayIsoDate(): string {
+    const today = new Date();
+    return `${today.getFullYear()}-${this._pad(today.getMonth() + 1)}-${this._pad(
+      today.getDate(),
+    )}`;
+  }
+
+  private _openMonthlyHistory(item: MedicationDashboardItem): void {
+    this._historyMedicationId = item.id;
+  }
+
+  private _closeMonthlyHistory(): void {
+    this._historyMedicationId = undefined;
+  }
+
+  private _historyMedication(): MedicationDashboardItem | undefined {
+    return this._dashboard?.medications.find(
+      (item) => item.id === this._historyMedicationId,
+    );
+  }
+
+  private _monthLeadingBlankCount(days: WeeklyDay[]): number {
+    const first = days[0];
+    if (!first) return 0;
+    const date = this._dateFromIsoDate(first.date);
+    if (!date) return 0;
+    return (date.getDay() + 6) % 7;
+  }
+
+  private _monthLabel(value: string | undefined, language: string): string {
+    const date = value ? this._dateFromIsoDate(value) : undefined;
+    if (!date) return localize(language, "monthlyHistory");
+    return date.toLocaleDateString(language, {
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  private _weekdayLabels(): string[] {
+    return ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+  }
+
+  private _dayNumber(value: string): string {
+    const parsed = this._parseDateParts(value);
+    if (!parsed) return value;
+    return String(Number(parsed.day));
+  }
+
+  private _dateFromIsoDate(value: string): Date | undefined {
+    const parsed = this._parseDateParts(value);
+    if (!parsed) return undefined;
+    return new Date(Number(parsed.year), Number(parsed.month) - 1, Number(parsed.day));
   }
 
   private _pad(value: number): string {
@@ -894,7 +1101,7 @@ export class MedicationManagerCard extends LitElement {
       align-items: center;
       display: grid;
       gap: 8px;
-      grid-template-columns: 40px 1fr 40px 40px;
+      grid-template-columns: 40px 1fr 40px 40px 40px;
     }
 
     .identity > ha-icon {
@@ -969,16 +1176,21 @@ export class MedicationManagerCard extends LitElement {
     .week-doses {
       align-content: center;
       align-items: center;
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
       gap: 2px;
+      grid-auto-rows: var(--dose-icon-size, 15px);
+      grid-template-columns: repeat(
+        var(--dose-columns, 1),
+        var(--dose-icon-size, 15px)
+      );
       justify-content: center;
+      justify-items: center;
       margin-inline: auto;
-      max-width: 26px;
-      min-height: 12px;
+      max-width: min(100%, var(--dose-grid-width, 15px));
+      min-height: var(--dose-icon-size, 15px);
       min-width: 0;
       overflow: hidden;
-      width: 100%;
+      width: min(100%, var(--dose-grid-width, 15px));
     }
 
     .dose {
@@ -986,11 +1198,15 @@ export class MedicationManagerCard extends LitElement {
       border-radius: 50%;
       box-sizing: border-box;
       display: inline-flex;
-      flex: 0 0 5px;
-      height: 5px;
+      height: 6px;
       justify-content: center;
+      justify-self: center;
       min-width: 0;
-      width: 5px;
+      width: 6px;
+    }
+
+    .dose:nth-last-child(1):nth-child(odd) {
+      grid-column: 1 / -1;
     }
 
     .week-day.taken {
@@ -1014,18 +1230,22 @@ export class MedicationManagerCard extends LitElement {
 
     .dose.taken {
       background: transparent;
+      border-radius: 0;
       color: var(--success-color);
-      flex-basis: 11px;
-      height: 11px;
-      width: 11px;
+      height: var(--dose-icon-size, 15px);
+      overflow: visible;
+      width: var(--dose-icon-size, 15px);
     }
 
     .dose-icon {
-      --mdc-icon-size: 11px;
+      --iron-icon-height: var(--dose-icon-size, 15px);
+      --iron-icon-width: var(--dose-icon-size, 15px);
+      --mdc-icon-size: var(--dose-icon-size, 15px);
       display: block;
-      height: 11px;
-      line-height: 11px;
-      width: 11px;
+      font-size: var(--dose-icon-size, 15px);
+      height: var(--dose-icon-size, 15px);
+      line-height: var(--dose-icon-size, 15px);
+      width: var(--dose-icon-size, 15px);
     }
 
     .dose.late {
@@ -1142,6 +1362,76 @@ export class MedicationManagerCard extends LitElement {
       padding-top: 4px;
     }
 
+    .history-dialog {
+      min-width: min(620px, calc(100vw - 48px));
+    }
+
+    .month-title {
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .month-grid {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .month-weekday {
+      color: var(--secondary-text-color);
+      font-size: 11px;
+      line-height: 14px;
+      text-align: center;
+    }
+
+    .month-spacer {
+      min-height: 48px;
+    }
+
+    .month-day {
+      align-items: center;
+      background: var(--secondary-background-color);
+      border-radius: 6px;
+      box-sizing: border-box;
+      display: grid;
+      gap: 4px;
+      min-height: 48px;
+      min-width: 0;
+      padding: 5px 3px;
+      place-items: center;
+    }
+
+    .month-date {
+      color: var(--secondary-text-color);
+      font-size: 11px;
+      line-height: 12px;
+    }
+
+    .month-day.taken {
+      background: color-mix(in srgb, var(--success-color) 20%, transparent);
+    }
+
+    .month-day.late {
+      background: color-mix(in srgb, #f5c542 24%, transparent);
+    }
+
+    .month-day.missed,
+    .month-day.none {
+      background: color-mix(in srgb, var(--error-color) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--error-color) 18%, transparent);
+    }
+
+    .month-day.future {
+      background: transparent;
+      border: 1px dashed var(--divider-color);
+    }
+
+    .month-doses {
+      max-width: min(100%, var(--dose-grid-width, 15px));
+      min-height: var(--dose-icon-size, 15px);
+    }
+
     .text-field {
       display: block;
       min-width: 0;
@@ -1193,6 +1483,7 @@ export class MedicationManagerCard extends LitElement {
       opacity: 0.6;
     }
 
+    .text-field input[type="date"],
     .text-field input[type="time"] {
       color-scheme: light dark;
     }

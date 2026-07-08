@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from datetime import datetime, time
+from datetime import date, datetime, time
 import logging
 from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
@@ -21,7 +21,9 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 import homeassistant.helpers.config_validation as cv
 
 from .const import (
+    ATTR_CLEAR_COURSE_END_DATE,
     ATTR_CONFIG_ENTRY_ID,
+    ATTR_COURSE_END_DATE,
     ATTR_ENABLED,
     ATTR_ICON,
     ATTR_MEDICATION_ID,
@@ -128,6 +130,7 @@ async def _async_add_medication(call: ServiceCall) -> ServiceResponse:
             tag_id=cast(str | None, call.data.get(ATTR_TAG_ID)),
             enabled=cast(bool, call.data[ATTR_ENABLED]),
             reminders=_reminders_from_call(call.data),
+            course_end_date=cast(date | None, call.data.get(ATTR_COURSE_END_DATE)),
         )
         await runtime_data.coordinator.async_refresh_after_mutation()
         return _medication_response(medication)
@@ -155,6 +158,8 @@ async def _async_update_medication(call: ServiceCall) -> ServiceResponse:
             clear_tag=cast(bool, call.data["clear_tag"]),
             enabled=cast(bool | None, call.data.get(ATTR_ENABLED)),
             reminders=_optional_reminders_from_call(call.data),
+            course_end_date=cast(date | None, call.data.get(ATTR_COURSE_END_DATE)),
+            clear_course_end_date=cast(bool, call.data[ATTR_CLEAR_COURSE_END_DATE]),
         )
         await runtime_data.coordinator.async_refresh_after_mutation()
         return _medication_response(medication)
@@ -453,6 +458,22 @@ def _validate_datetime(value: object) -> datetime:
         raise vol.Invalid("ожидается дата и время с часовым поясом") from err
 
 
+def _validate_date(value: object) -> date:
+    """Validate a service action value as a date."""
+    _LOGGER.debug("Validating Medication Manager service date")
+    try:
+        if isinstance(value, date) and not isinstance(value, datetime):
+            return value
+        if isinstance(value, str):
+            return date.fromisoformat(value)
+        raise vol.Invalid("ожидается дата в формате YYYY-MM-DD")
+    except vol.Invalid:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager service date is invalid")
+        raise vol.Invalid("ожидается дата в формате YYYY-MM-DD") from err
+
+
 def _validate_history_source(value: object) -> str:
     """Validate a service action history source."""
     _LOGGER.debug("Validating Medication Manager history source service value")
@@ -531,6 +552,7 @@ ADD_MEDICATION_SCHEMA = vol.Schema(
         vol.Required(ATTR_NAME): cv.string,
         vol.Optional(ATTR_ICON, default=DEFAULT_MEDICATION_ICON): cv.string,
         vol.Optional(ATTR_TAG_ID): cv.string,
+        vol.Optional(ATTR_COURSE_END_DATE): _validate_date,
         vol.Optional(ATTR_ENABLED, default=True): cv.boolean,
         vol.Optional(ATTR_REMINDERS, default=[]): vol.All(
             _ensure_list,
@@ -547,6 +569,8 @@ UPDATE_MEDICATION_SCHEMA = vol.Schema(
         vol.Optional(ATTR_ICON): cv.string,
         vol.Optional(ATTR_TAG_ID): cv.string,
         vol.Optional("clear_tag", default=False): cv.boolean,
+        vol.Optional(ATTR_COURSE_END_DATE): _validate_date,
+        vol.Optional(ATTR_CLEAR_COURSE_END_DATE, default=False): cv.boolean,
         vol.Optional(ATTR_ENABLED): cv.boolean,
         vol.Optional(ATTR_REMINDERS): vol.All(_ensure_list, [_REMINDER_SCHEMA]),
     }

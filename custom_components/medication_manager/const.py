@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "medication_manager"
 NAME = "Менеджер лекарств"
-VERSION = "0.7.4"
+VERSION = "0.7.5"
 
 STORAGE_KEY = f"{DOMAIN}.storage"
 STORAGE_VERSION = 1
@@ -19,6 +19,8 @@ DATA_SERVICES_REGISTERED = "services_registered"
 DATA_API_REGISTERED = "api_registered"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
+ATTR_CLEAR_COURSE_END_DATE = "clear_course_end_date"
+ATTR_COURSE_END_DATE = "course_end_date"
 ATTR_ENABLED = "enabled"
 ATTR_ICON = "icon"
 ATTR_MEDICATION_ID = "medication_id"

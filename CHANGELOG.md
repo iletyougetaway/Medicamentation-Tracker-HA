@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.5
+
+- Add optional medication course end dates, including a permanent-course mode.
+- Stop reminder scheduling after a medication course end date.
+- Add monthly medication history from the card.
+- Fix weekly intake icon sizing and centering.
+
 ## 0.7.4
 
 - Slightly increase the medication icon size in weekly taken intake markers.

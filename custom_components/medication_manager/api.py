@@ -117,11 +117,19 @@ async def _dashboard_payload(
         now = dt_util.now()
         today = now.date()
         week_start = today - timedelta(days=today.weekday())
+        month_start = today.replace(day=1)
         return {
             "config_entry_id": entry_id,
             "generated_at": now.isoformat(),
             "medications": [
-                _medication_payload(data, medication, now, today, week_start)
+                _medication_payload(
+                    data,
+                    medication,
+                    now,
+                    today,
+                    week_start,
+                    month_start,
+                )
                 for medication in sorted(
                     data.medications.values(),
                     key=lambda item: item.name.casefold(),
@@ -143,6 +151,7 @@ def _medication_payload(
     now: datetime,
     today: date,
     week_start: date,
+    month_start: date,
 ) -> JsonObject:
     """Build dashboard data for one medication."""
     _LOGGER.debug("Building Medication Manager card payload for %s", medication.id)
@@ -154,24 +163,20 @@ def _medication_payload(
             week_start=week_start,
             today=today,
         )
+        monthly = MedicationHistory.monthly_summary(
+            data.history,
+            medication_id=medication.id,
+            month_start=month_start,
+            today=today,
+        )
         payload = medication.as_storage()
         payload.update(
             {
                 "today_status": _today_status(data.history, medication, today, now),
                 "next_reminder": _next_reminder(medication, now),
                 "last_intake": latest.as_storage() if latest is not None else None,
-                "weekly_history": [
-                    {
-                        "date": day.day.isoformat(),
-                        "status": day.status.value if day.status else None,
-                        "entry_ids": [str(entry_id) for entry_id in day.entry_ids],
-                        "taken_count": day.taken_count,
-                        "late_count": day.late_count,
-                        "missed_count": day.missed_count,
-                        "is_future": day.is_future,
-                    }
-                    for day in weekly
-                ],
+                "weekly_history": [_day_payload(day) for day in weekly],
+                "monthly_history": [_day_payload(day) for day in monthly],
             }
         )
         return payload
@@ -214,7 +219,7 @@ def _next_reminder(medication: Medication, now: datetime) -> JsonObject | None:
     _LOGGER.debug("Resolving Medication Manager next reminder")
     try:
         enabled = [reminder for reminder in medication.schedule if reminder.enabled]
-        if not medication.enabled or not enabled:
+        if not _medication_active_on(medication, now.date()) or not enabled:
             return None
         sorted_reminders = sorted(enabled, key=lambda reminder: reminder.time)
         for day_offset in (0, 1):
@@ -225,7 +230,10 @@ def _next_reminder(medication: Medication, now: datetime) -> JsonObject | None:
                     reminder.time,
                     tzinfo=now.tzinfo,
                 )
-                if due_at >= now:
+                if due_at >= now and _medication_active_on(
+                    medication,
+                    candidate_day,
+                ):
                     return {
                         "time": reminder.time.strftime("%H:%M"),
                         "due_at": due_at.isoformat(),
@@ -236,3 +244,23 @@ def _next_reminder(medication: Medication, now: datetime) -> JsonObject | None:
         raise HomeAssistantError(
             "Не удалось определить следующее напоминание"
         ) from err
+
+
+def _day_payload(day: Any) -> JsonObject:
+    """Serialize one day history summary for the dashboard."""
+    return {
+        "date": day.day.isoformat(),
+        "status": day.status.value if day.status else None,
+        "entry_ids": [str(entry_id) for entry_id in day.entry_ids],
+        "taken_count": day.taken_count,
+        "late_count": day.late_count,
+        "missed_count": day.missed_count,
+        "is_future": day.is_future,
+    }
+
+
+def _medication_active_on(medication: Medication, day: date) -> bool:
+    """Return whether a medication is active for a calendar day."""
+    return medication.enabled and (
+        medication.course_end_date is None or day <= medication.course_end_date
+    )

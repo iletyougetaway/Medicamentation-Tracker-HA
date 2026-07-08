@@ -31,10 +31,12 @@ export interface MedicationDashboardItem {
   created_at: string;
   updated_at: string;
   schedule: Reminder[];
+  course_end_date: string | null;
   today_status: "taken" | "missed" | "late" | null;
   next_reminder: { time: string; due_at: string } | null;
   last_intake: HistoryEntry | null;
   weekly_history: WeeklyDay[];
+  monthly_history: WeeklyDay[];
 }
 
 export interface MedicationDashboard {
@@ -42,4 +44,3 @@ export interface MedicationDashboard {
   generated_at: string;
   medications: MedicationDashboardItem[];
 }
-

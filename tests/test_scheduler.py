@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, time, timezone
+from datetime import date, datetime, time, timezone
 import logging
 from uuid import uuid4
 
@@ -61,10 +61,49 @@ def test_reminder_still_enabled_requires_enabled_medication_and_time() -> None:
             schedule=(MedicationReminder(time=time(8, 0), enabled=True),),
         )
 
-        assert _reminder_still_enabled(medication, time(8, 0)) is True
-        assert _reminder_still_enabled(medication, time(20, 0)) is False
+        due_at = datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc)
+
+        assert _reminder_still_enabled(medication, time(8, 0), due_at) is True
+        assert _reminder_still_enabled(medication, time(20, 0), due_at) is False
     except Exception:
         _LOGGER.exception("Scheduler enabled check test failed")
+        raise
+
+
+def test_reminder_still_enabled_respects_course_end_date() -> None:
+    """Verify scheduler stops reminders after a medication course ends."""
+    _LOGGER.debug("Testing Medication Manager scheduler course end check")
+    try:
+        medication = Medication(
+            id=uuid4(),
+            name="Vitamin D",
+            icon="mdi:pill",
+            tag_id=None,
+            enabled=True,
+            created_at=datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc),
+            updated_at=datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc),
+            schedule=(MedicationReminder(time=time(8, 0), enabled=True),),
+            course_end_date=date(2026, 7, 3),
+        )
+
+        assert (
+            _reminder_still_enabled(
+                medication,
+                time(8, 0),
+                datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc),
+            )
+            is True
+        )
+        assert (
+            _reminder_still_enabled(
+                medication,
+                time(8, 0),
+                datetime(2026, 7, 4, 8, 0, tzinfo=timezone.utc),
+            )
+            is False
+        )
+    except Exception:
+        _LOGGER.exception("Scheduler course end check test failed")
         raise
 
 

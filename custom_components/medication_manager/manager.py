@@ -302,6 +302,7 @@ class MedicationManager:
         tag_id: str | None = None,
         enabled: bool = True,
         reminders: Sequence[MedicationReminder] = (),
+        course_end_date: date | None = None,
     ) -> Medication:
         """Create and persist a new medication."""
         _LOGGER.debug("Adding Medication Manager medication")
@@ -310,6 +311,10 @@ class MedicationManager:
             normalized_icon = _normalize_icon(icon)
             normalized_tag_id = _normalize_optional_text(tag_id, "tag_id")
             normalized_reminders = _normalize_reminders(reminders)
+            normalized_course_end_date = _normalize_optional_date(
+                course_end_date,
+                "course_end_date",
+            )
             now = datetime.now(timezone.utc)
 
             async with self._lock:
@@ -326,6 +331,7 @@ class MedicationManager:
                     created_at=now,
                     updated_at=now,
                     schedule=normalized_reminders,
+                    course_end_date=normalized_course_end_date,
                 )
                 medications[medication.id] = medication
                 await self._async_store_locked(_with_medications(data, medications))
@@ -348,6 +354,8 @@ class MedicationManager:
         clear_tag: bool = False,
         enabled: bool | None = None,
         reminders: Sequence[MedicationReminder] | None = None,
+        course_end_date: date | None = None,
+        clear_course_end_date: bool = False,
     ) -> Medication:
         """Update and persist an existing medication."""
         _LOGGER.debug("Updating Medication Manager medication %s", medication_id)
@@ -384,6 +392,11 @@ class MedicationManager:
                         _normalize_reminders(reminders)
                         if reminders is not None
                         else current.schedule
+                    ),
+                    course_end_date=_resolve_updated_course_end_date(
+                        current=current,
+                        course_end_date=course_end_date,
+                        clear_course_end_date=clear_course_end_date,
                     ),
                 )
                 medications[updated.id] = updated
@@ -720,6 +733,18 @@ def _normalize_optional_text(value: str | None, field: str) -> str | None:
         ) from err
 
 
+def _normalize_optional_date(value: date | None, field: str) -> date | None:
+    """Normalize an optional date field."""
+    _LOGGER.debug("Normalizing optional Medication Manager date %s", field)
+    try:
+        return value
+    except Exception as err:
+        _LOGGER.exception("Invalid optional Medication Manager date field %s", field)
+        raise MedicationValidationError(
+            f"Поле {field} заполнено некорректно"
+        ) from err
+
+
 def _normalize_icon(value: str) -> str:
     """Normalize a medication icon value."""
     _LOGGER.debug("Normalizing Medication Manager icon")
@@ -832,6 +857,33 @@ def _resolve_updated_tag_id(
         _LOGGER.exception("Medication Manager tag update resolution failed")
         raise MedicationValidationError(
             "Обновление NFC-метки заполнено некорректно"
+        ) from err
+
+
+def _resolve_updated_course_end_date(
+    *,
+    current: Medication,
+    course_end_date: date | None,
+    clear_course_end_date: bool,
+) -> date | None:
+    """Resolve the next optional medication course end date."""
+    _LOGGER.debug("Resolving updated Medication Manager course end date")
+    try:
+        if clear_course_end_date and course_end_date is not None:
+            raise MedicationValidationError(
+                "Нельзя одновременно указать course_end_date и clear_course_end_date"
+            )
+        if clear_course_end_date:
+            return None
+        if course_end_date is not None:
+            return _normalize_optional_date(course_end_date, "course_end_date")
+        return current.course_end_date
+    except HomeAssistantError:
+        raise
+    except Exception as err:
+        _LOGGER.exception("Medication Manager course end date update failed")
+        raise MedicationValidationError(
+            "Дата окончания курса заполнена некорректно"
         ) from err
 
 

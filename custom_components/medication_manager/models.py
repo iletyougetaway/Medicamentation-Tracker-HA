@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime, time, timezone
+from datetime import date, datetime, time, timezone
 from enum import StrEnum
 import logging
 from types import MappingProxyType
@@ -88,6 +88,7 @@ class Medication:
     created_at: datetime
     updated_at: datetime
     schedule: tuple[MedicationReminder, ...]
+    course_end_date: date | None = None
 
     @classmethod
     def from_storage(cls, value: object) -> Medication:
@@ -107,6 +108,7 @@ class Medication:
                 schedule=tuple(
                     MedicationReminder.from_storage(item) for item in schedule_value
                 ),
+                course_end_date=_optional_date(data, "course_end_date"),
             )
         except Exception as err:
             _LOGGER.exception("Invalid medication payload")
@@ -125,6 +127,11 @@ class Medication:
                 "created_at": _format_datetime(self.created_at),
                 "updated_at": _format_datetime(self.updated_at),
                 "schedule": [reminder.as_storage() for reminder in self.schedule],
+                "course_end_date": (
+                    _format_date(self.course_end_date)
+                    if self.course_end_date is not None
+                    else None
+                ),
             }
         except Exception as err:
             _LOGGER.exception("Medication serialization failed for %s", self.id)
@@ -403,6 +410,21 @@ def _optional_datetime(data: Mapping[str, object], field: str) -> datetime | Non
         raise ValueError(f"Invalid datetime field {field}") from err
 
 
+def _optional_date(data: Mapping[str, object], field: str) -> date | None:
+    """Read an optional date from storage."""
+    _LOGGER.debug("Reading optional date field %s", field)
+    try:
+        value = data.get(field)
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise TypeError(f"{field} must be a date string or null")
+        return date.fromisoformat(value)
+    except Exception as err:
+        _LOGGER.exception("Invalid optional date field %s", field)
+        raise ValueError(f"Invalid date field {field}") from err
+
+
 def _format_datetime(value: datetime) -> str:
     """Format an aware datetime for storage."""
     _LOGGER.debug("Formatting datetime value")
@@ -413,6 +435,16 @@ def _format_datetime(value: datetime) -> str:
     except Exception as err:
         _LOGGER.exception("Datetime formatting failed")
         raise ValueError("Datetime formatting failed") from err
+
+
+def _format_date(value: date) -> str:
+    """Format a date for storage."""
+    _LOGGER.debug("Formatting date value")
+    try:
+        return value.isoformat()
+    except Exception as err:
+        _LOGGER.exception("Date formatting failed")
+        raise ValueError("Date formatting failed") from err
 
 
 def _parse_reminder_time(value: str) -> time:
@@ -451,4 +483,3 @@ def _validate_non_empty(value: str, field: str) -> str:
     except Exception as err:
         _LOGGER.exception("Invalid non-empty string field %s", field)
         raise ValueError(f"Invalid non-empty string field {field}") from err
-

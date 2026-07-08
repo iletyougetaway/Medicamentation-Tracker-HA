@@ -895,19 +895,16 @@ export class MedicationManagerCard extends LitElement {
     });
   }
 
-  private _dailyDoseCount(item: MedicationDashboardItem): number {
+  private _plannedDailyDoseCount(item: MedicationDashboardItem): number {
     const configured = item.schedule.length;
     const enabled = item.schedule.filter((reminder) => reminder.enabled).length;
-    const historicalMax = Math.max(
-      0,
-      ...item.weekly_history.map((day) => this._historyCount(day)),
-      ...item.monthly_history.map((day) => this._historyCount(day)),
-    );
-    return Math.max(1, enabled || configured, historicalMax);
+    return Math.max(1, enabled || configured);
   }
 
   private _dayDoseCount(item: MedicationDashboardItem, day: WeeklyDay): number {
-    return Math.max(this._dailyDoseCount(item), this._historyCount(day));
+    const plannedCount = this._plannedDailyDoseCount(item);
+    if (day.is_future) return plannedCount;
+    return Math.max(plannedCount, this._historyCount(day));
   }
 
   private _doseGridStyle(doseCount: number): string {
@@ -1359,11 +1356,14 @@ export class MedicationManagerCard extends LitElement {
     .dialog-content {
       box-sizing: border-box;
       min-width: min(520px, calc(100vw - 48px));
+      max-width: 100%;
+      overflow-x: hidden;
       padding-top: 4px;
     }
 
     .history-dialog {
-      min-width: min(620px, calc(100vw - 48px));
+      min-width: 0;
+      width: min(620px, calc(100vw - 72px));
     }
 
     .month-title {
@@ -1373,9 +1373,12 @@ export class MedicationManagerCard extends LitElement {
     }
 
     .month-grid {
+      box-sizing: border-box;
       display: grid;
       gap: 6px;
       grid-template-columns: repeat(7, minmax(0, 1fr));
+      min-width: 0;
+      width: 100%;
     }
 
     .month-weekday {
@@ -1566,9 +1569,21 @@ export class MedicationManagerCard extends LitElement {
     }
 
     @media (max-width: 520px) {
+      ha-dialog {
+        --ha-dialog-width-md: calc(100vw - 24px);
+      }
+
       header {
         align-items: stretch;
         flex-direction: column;
+      }
+
+      .history-dialog {
+        width: min(100%, calc(100vw - 40px));
+      }
+
+      .month-grid {
+        gap: 4px;
       }
 
       .reminder-row {

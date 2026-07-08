@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.7
+
+- Keep future history markers based on the planned daily dose count instead of
+  expanding them from higher intake counts recorded on previous days.
+
+## 0.7.6
+
+- Fix monthly history dialog width so the calendar grid stays centered without
+  horizontal scrolling.
+
 ## 0.7.5
 
 - Add optional medication course end dates, including a permanent-course mode.

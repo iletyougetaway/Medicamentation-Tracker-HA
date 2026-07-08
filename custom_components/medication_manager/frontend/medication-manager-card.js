@@ -1205,16 +1205,13 @@ let _ = class extends C {
   _defaultReminderTimes(t) {
     return t <= 1 ? ["08:00"] : t === 2 ? ["08:00", "20:00"] : t === 3 ? ["08:00", "12:00", "20:00"] : Array.from({ length: t }, (e, i) => `${Math.round(8 + 12 * i / (t - 1)).toString().padStart(2, "0")}:00`);
   }
-  _dailyDoseCount(t) {
-    const e = t.schedule.length, i = t.schedule.filter((s) => s.enabled).length, r = Math.max(
-      0,
-      ...t.weekly_history.map((s) => this._historyCount(s)),
-      ...t.monthly_history.map((s) => this._historyCount(s))
-    );
-    return Math.max(1, i || e, r);
+  _plannedDailyDoseCount(t) {
+    const e = t.schedule.length, i = t.schedule.filter((r) => r.enabled).length;
+    return Math.max(1, i || e);
   }
   _dayDoseCount(t, e) {
-    return Math.max(this._dailyDoseCount(t), this._historyCount(e));
+    const i = this._plannedDailyDoseCount(t);
+    return e.is_future ? i : Math.max(i, this._historyCount(e));
   }
   _doseGridStyle(t) {
     const e = Math.min(2, Math.max(1, t)), i = 15, s = e * i + (e - 1) * 2;
@@ -1625,11 +1622,14 @@ _.styles = he`
     .dialog-content {
       box-sizing: border-box;
       min-width: min(520px, calc(100vw - 48px));
+      max-width: 100%;
+      overflow-x: hidden;
       padding-top: 4px;
     }
 
     .history-dialog {
-      min-width: min(620px, calc(100vw - 48px));
+      min-width: 0;
+      width: min(620px, calc(100vw - 72px));
     }
 
     .month-title {
@@ -1639,9 +1639,12 @@ _.styles = he`
     }
 
     .month-grid {
+      box-sizing: border-box;
       display: grid;
       gap: 6px;
       grid-template-columns: repeat(7, minmax(0, 1fr));
+      min-width: 0;
+      width: 100%;
     }
 
     .month-weekday {
@@ -1832,9 +1835,21 @@ _.styles = he`
     }
 
     @media (max-width: 520px) {
+      ha-dialog {
+        --ha-dialog-width-md: calc(100vw - 24px);
+      }
+
       header {
         align-items: stretch;
         flex-direction: column;
+      }
+
+      .history-dialog {
+        width: min(100%, calc(100vw - 40px));
+      }
+
+      .month-grid {
+        gap: 4px;
       }
 
       .reminder-row {

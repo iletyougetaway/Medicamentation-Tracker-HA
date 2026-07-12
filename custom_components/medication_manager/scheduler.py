@@ -20,7 +20,7 @@ from .const import (
     EVENT_DATA_UPDATED,
 )
 from .manager import MedicationManager
-from .models import Medication, MedicationReminder
+from .models import HistoryEntry, HistoryStatus, Medication, MedicationReminder
 from .notifications import (
     DEFAULT_SNOOZE_MINUTES,
     MedicationNotificationEngine,
@@ -219,6 +219,13 @@ class MedicationReminderScheduler:
                 _LOGGER.debug("Medication Manager reminder is no longer enabled")
                 return
 
+            if await self._async_reminder_already_taken(medication, scheduled):
+                _LOGGER.debug(
+                    "Medication Manager reminder already satisfied for %s",
+                    scheduled.medication_id,
+                )
+                return
+
             await self._notifications.async_send_reminder(
                 medication,
                 notify_service=notify_service,
@@ -237,6 +244,36 @@ class MedicationReminderScheduler:
                 _LOGGER.exception("Medication Manager post-reminder reschedule failed")
             except Exception:
                 _LOGGER.exception("Unexpected post-reminder reschedule error")
+
+    async def _async_reminder_already_taken(
+        self,
+        medication: Medication,
+        scheduled: ScheduledMedicationReminder,
+    ) -> bool:
+        """Return whether the dose for a scheduled reminder was already taken."""
+        _LOGGER.debug(
+            "Checking Medication Manager intake history for reminder %s",
+            scheduled.key,
+        )
+        try:
+            window_start, window_end = _intake_window(
+                medication,
+                scheduled.reminder_time,
+                scheduled.due_at,
+            )
+            history = await self._manager.async_list_history(
+                medication_id=scheduled.medication_id,
+                start=window_start,
+                end=window_end,
+            )
+            return any(_counts_as_taken(entry) for entry in history)
+        except HomeAssistantError:
+            raise
+        except Exception as err:
+            _LOGGER.exception("Medication Manager intake history check failed")
+            raise MedicationSchedulerError(
+                "Не удалось проверить, принято ли лекарство"
+            ) from err
 
     async def _async_notify_mutation(self) -> None:
         """Notify listeners after scheduler-backed state changes."""
@@ -309,6 +346,82 @@ def _reminder_still_enabled(
         _LOGGER.exception("Medication Manager reminder enabled check failed")
         raise MedicationSchedulerError(
             "Не удалось проверить, включено ли напоминание"
+        ) from err
+
+
+def _counts_as_taken(entry: HistoryEntry) -> bool:
+    """Return whether a history entry represents a completed intake."""
+    return entry.status in (HistoryStatus.TAKEN, HistoryStatus.LATE)
+
+
+def _intake_window(
+    medication: Medication,
+    reminder_time: time,
+    due_at: datetime,
+) -> tuple[datetime, datetime]:
+    """Return the datetime window that an intake for a reminder falls into.
+
+    The window is bracketed by the midpoints between neighbouring enabled
+    reminders on the reminder's day, so that taking one dose only suppresses
+    that dose's reminder and not the other scheduled doses of the day.
+    """
+    _LOGGER.debug("Resolving Medication Manager intake window")
+    try:
+        day = due_at.date()
+        tzinfo = due_at.tzinfo
+        day_start = datetime.combine(day, time(0, 0), tzinfo=tzinfo)
+        next_day_start = day_start + timedelta(days=1)
+
+        enabled_times = sorted(
+            {
+                reminder.time
+                for reminder in medication.schedule
+                if reminder.enabled
+            }
+        )
+        if reminder_time not in enabled_times:
+            return day_start, next_day_start
+
+        index = enabled_times.index(reminder_time)
+        previous_time = enabled_times[index - 1] if index > 0 else None
+        next_time = (
+            enabled_times[index + 1] if index + 1 < len(enabled_times) else None
+        )
+
+        start = (
+            _midpoint(previous_time, reminder_time, day, tzinfo)
+            if previous_time is not None
+            else day_start
+        )
+        end = (
+            _midpoint(reminder_time, next_time, day, tzinfo)
+            if next_time is not None
+            else next_day_start
+        )
+        return start, end
+    except Exception as err:
+        _LOGGER.exception("Medication Manager intake window resolution failed")
+        raise MedicationSchedulerError(
+            "Не удалось определить интервал приёма"
+        ) from err
+
+
+def _midpoint(
+    earlier: time,
+    later: time,
+    day: date,
+    tzinfo: object,
+) -> datetime:
+    """Return the local datetime halfway between two reminder times on a day."""
+    _LOGGER.debug("Resolving Medication Manager reminder midpoint")
+    try:
+        earlier_at = datetime.combine(day, earlier, tzinfo=tzinfo)
+        later_at = datetime.combine(day, later, tzinfo=tzinfo)
+        return earlier_at + (later_at - earlier_at) / 2
+    except Exception as err:
+        _LOGGER.exception("Medication Manager reminder midpoint resolution failed")
+        raise MedicationSchedulerError(
+            "Не удалось определить середину интервала"
         ) from err
 
 

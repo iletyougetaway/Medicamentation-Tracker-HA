@@ -6,8 +6,16 @@ from datetime import date, datetime, time, timezone
 import logging
 from uuid import uuid4
 
-from custom_components.medication_manager.models import Medication, MedicationReminder
+from custom_components.medication_manager.models import (
+    HistoryEntry,
+    HistorySource,
+    HistoryStatus,
+    Medication,
+    MedicationReminder,
+)
 from custom_components.medication_manager.scheduler import (
+    _counts_as_taken,
+    _intake_window,
     _notify_service_from_entry,
     _next_due_at,
     _reminder_still_enabled,
@@ -119,6 +127,89 @@ def test_notify_service_normalizes_mobile_app_service() -> None:
         assert _notify_service_from_entry(entry) == "mobile_app_phone"
     except Exception:
         _LOGGER.exception("Scheduler notify service normalization test failed")
+        raise
+
+
+def _medication_with_times(*reminder_times: time) -> Medication:
+    """Build a medication with the given enabled reminder times."""
+    _LOGGER.debug("Building medication for intake window tests")
+    return Medication(
+        id=uuid4(),
+        name="Vitamin D",
+        icon="mdi:pill",
+        tag_id=None,
+        enabled=True,
+        created_at=datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc),
+        updated_at=datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc),
+        schedule=tuple(
+            MedicationReminder(time=reminder_time, enabled=True)
+            for reminder_time in reminder_times
+        ),
+    )
+
+
+def test_counts_as_taken_accepts_taken_and_late() -> None:
+    """Verify taken and late intakes suppress a reminder but missed does not."""
+    _LOGGER.debug("Testing Medication Manager taken-status detection")
+    try:
+        medication_id = uuid4()
+
+        def _entry(status: HistoryStatus) -> HistoryEntry:
+            return HistoryEntry(
+                id=uuid4(),
+                medication_id=medication_id,
+                scheduled_time=None,
+                taken_time=datetime(2026, 7, 3, 8, 5, tzinfo=timezone.utc),
+                status=status,
+                source=HistorySource.NFC,
+            )
+
+        assert _counts_as_taken(_entry(HistoryStatus.TAKEN)) is True
+        assert _counts_as_taken(_entry(HistoryStatus.LATE)) is True
+        assert _counts_as_taken(_entry(HistoryStatus.MISSED)) is False
+    except Exception:
+        _LOGGER.exception("Taken-status detection test failed")
+        raise
+
+
+def test_intake_window_single_reminder_spans_whole_day() -> None:
+    """Verify a single daily reminder is suppressed by any intake that day."""
+    _LOGGER.debug("Testing Medication Manager single-reminder intake window")
+    try:
+        medication = _medication_with_times(time(8, 0))
+        due_at = datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc)
+
+        start, end = _intake_window(medication, time(8, 0), due_at)
+
+        assert start == datetime(2026, 7, 3, 0, 0, tzinfo=timezone.utc)
+        assert end == datetime(2026, 7, 4, 0, 0, tzinfo=timezone.utc)
+    except Exception:
+        _LOGGER.exception("Single-reminder intake window test failed")
+        raise
+
+
+def test_intake_window_uses_midpoints_between_reminders() -> None:
+    """Verify multi-dose reminders only claim intakes near their own time."""
+    _LOGGER.debug("Testing Medication Manager multi-reminder intake window")
+    try:
+        medication = _medication_with_times(time(8, 0), time(20, 0))
+        due_at = datetime(2026, 7, 3, 8, 0, tzinfo=timezone.utc)
+
+        start, end = _intake_window(medication, time(8, 0), due_at)
+
+        assert start == datetime(2026, 7, 3, 0, 0, tzinfo=timezone.utc)
+        assert end == datetime(2026, 7, 3, 14, 0, tzinfo=timezone.utc)
+
+        evening_start, evening_end = _intake_window(
+            medication,
+            time(20, 0),
+            datetime(2026, 7, 3, 20, 0, tzinfo=timezone.utc),
+        )
+
+        assert evening_start == datetime(2026, 7, 3, 14, 0, tzinfo=timezone.utc)
+        assert evening_end == datetime(2026, 7, 4, 0, 0, tzinfo=timezone.utc)
+    except Exception:
+        _LOGGER.exception("Multi-reminder intake window test failed")
         raise
 
 
